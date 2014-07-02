@@ -1,0 +1,7 @@
+<form ng-init="step=1">
+  <div ng-show="step==1" id="new-field">
+  	<label for="business-name">Field Name</label>
+		<input type="text" ng-show="step==1" ng-model="field.name" placeholder="Enter a name for the attribute" width="100" id="field-name">
+		<button ng-click="create();">All Set</button>
+	</div>
+</form>
