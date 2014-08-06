@@ -1,0 +1,4 @@
+<button type="button" id="new-document" ng-click="newDocument();" ng-hide="isMakingDocument">New Document</button>
+<button type="button" id="save-button" ng-click="saveDocument();" ng-show="isMakingDocument">Save</button>
+<input ng-model="docTitle" ng-show="isMakingDocument">
+<textarea rows="20" cols="20" ng-model="docBody" ng-show="isMakingDocument"></textarea>

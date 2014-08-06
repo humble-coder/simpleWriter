@@ -2,8 +2,8 @@
 
 /* Services */
 
+angular.module('myApp.services', []).service('docInfo', function() {
+	var info = {};
+  return info;
+});
 
-// Demonstrate how to register services
-// In this case it is a simple value service.
-angular.module('myApp.services', []).
-  value('version', '0.1');
