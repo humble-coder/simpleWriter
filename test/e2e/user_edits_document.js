@@ -1,28 +1,41 @@
 'use strict';
 
 describe('Document editing', function() {
-  beforeEach(function() {
+  
+  it('should let user/creator edit document body and title', function() {
     browser.get('#/');
+
     var newDocButton = element(by.id('new-document'));
     var docTitle = element(by.model('docTitle'));
     var docBody = element(by.model('docBody'));
 
-  	newDocButton.click();
-    
+    newDocButton.click();
     docTitle.sendKeys('New document');
     docBody.sendKeys('Some content');
+
     element(by.id('save-button')).click();
-  });
-  
-  it('should let user edit document body and title', function() {
   	expect($('[ng-show=isEditingDocument]').isDisplayed()).toBeFalsy();
     expect($('[ng-hide=isEditingDocument]').isDisplayed()).toBeTruthy();
 
     element(by.id('edit-button')).click();
-    element(by.model('docBody')).sendKeys('Updated content');
+    element(by.model('docBody')).sendKeys(' Updated content');
 
     element(by.id('update-button')).click().then(function() {
-    	expect(element(by.id('document-body')).getText()).toEqual('Some contentUpdated content');
+    	expect(element(by.id('document-body')).getText()).toEqual('Some content Updated content');
+    });
+  });
+
+  it('should let another user/collaborator edit document body and title', function() {
+    browser.get('#/Newdocument');
+
+    expect($('[ng-show=isEditingDocument]').isDisplayed()).toBeFalsy();
+    expect($('[ng-hide=isEditingDocument]').isDisplayed()).toBeTruthy();
+
+    element(by.id('edit-button')).click();
+    element(by.model('docBody')).sendKeys(' Updated again');
+
+    element(by.id('update-button')).click().then(function() {
+      expect(element(by.id('document-body')).getText()).toEqual('Some content Updated content Updated again');
     });
   });
 });

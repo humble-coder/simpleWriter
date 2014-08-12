@@ -19,17 +19,20 @@ io.sockets.on('connection', function(socket) {
 	socket.on('saveDocument', function(data) {
 		var docName = data.title.replace(/\s+/g, '');
 		client.hmset(docName, "title", data.title, "body", data.body);
+		socket.join(docName);
 	});
 
 	socket.on('getDocument', function(data, fn) {
 		client.hgetall(data.name, function(err, obj) {
 			fn(obj);
+			socket.join(data.name);
 		});
 	});
 
-	socket.on('updateDocument', function(data, fn) {
+	socket.on('updateDocument', function(data) {
 		client.hmset(data.name, "body", data.body, function(err, obj) {
-			socket.broadcast.emit('documentChanged', data);
+			io.to(data.name).emit('documentChanged', data);
 		});
 	});
 });
+

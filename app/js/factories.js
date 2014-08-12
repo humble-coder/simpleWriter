@@ -5,10 +5,7 @@
 angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 	var socket = io.connect();
 	return {
-		on: function(eventName, callback, namespace) {
-			if (namespace) {
-				socket = io.connect(namespace);
-			}
+		on: function(eventName, callback) {
 			socket.on(eventName, function() {
 				var args = arguments;
 				$rootScope.$apply(function() {
@@ -16,10 +13,7 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 				});
 			});
 		},
-		emit: function(eventName, data, callback, namespace) {
-			if (namespace) {
-				socket = io.connect(namespace);
-			}
+		emit: function(eventName, data, callback) {
 			socket.emit(eventName, data, function() {
 				var args = arguments;
 				$rootScope.$apply(function() {

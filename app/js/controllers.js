@@ -36,9 +36,7 @@ angular.module('myApp.controllers', [])
     }
 
     socket.on('documentChanged', function(data) {
-      if (data.name === $routeParams.name) {
-        $scope.docBody = data.body;
-      }
+      $scope.docBody = data.body;
     });
 
     $scope.updateDocument = function() {
