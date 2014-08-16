@@ -18,6 +18,11 @@ angular.module('myApp.controllers', [])
       $location.path('/' + docInfo.title.replace(/\s+/g, ''));
     }
   }])
+  .controller('registrationCtrl', ['$scope', 'socket', function($scope, socket) {
+    $scope.createUser = function() {
+      socket.emit('createUser', { userName: $scope.userName, userEmail: $scope.userEmail });
+    }
+  }])
   .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', function($scope, $routeParams, docInfo, socket) {
 
     $scope.isEditingDocument = false;

@@ -12,9 +12,9 @@ describe('Document creation', function() {
 
   
   it('should let user create a new document', function() {
-    var newDocButton = element(by.id('new-document'));
-    var docTitle = element(by.model('docTitle'));
-    var docBody = element(by.model('docBody'));
+    var newDocButton = element(by.id('new-document')),
+    docTitle = element(by.model('docTitle')),
+    docBody = element(by.model('docBody'));
 
   	newDocButton.click();
     

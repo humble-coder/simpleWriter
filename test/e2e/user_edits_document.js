@@ -5,9 +5,9 @@ describe('Document editing', function() {
   it('should let user/creator edit document body and title', function() {
     browser.get('#/');
 
-    var newDocButton = element(by.id('new-document'));
-    var docTitle = element(by.model('docTitle'));
-    var docBody = element(by.model('docBody'));
+    var newDocButton = element(by.id('new-document')),
+    docTitle = element(by.model('docTitle')),
+    docBody = element(by.model('docBody'));
 
     newDocButton.click();
     docTitle.sendKeys('New document');
