@@ -18,8 +18,13 @@ app.get('/', function(req, res) {
 io.sockets.on('connection', function(socket) {
 	socket.on('saveDocument', function(data) {
 		var docName = data.title.replace(/\s+/g, '');
+		//userId = data.userId;
 		client.hmset(docName, "title", data.title, "body", data.body);
 		socket.join(docName);
+
+		// client.sadd(userId + ":documents", docName, function(err, obj) {
+			
+		// });
 	});
 
 	socket.on('getDocument', function(data, fn) {
@@ -34,5 +39,15 @@ io.sockets.on('connection', function(socket) {
 			io.to(data.name).emit('documentChanged', data);
 		});
 	});
+
+	socket.on('saveUser', function(data) {
+		client.incr("userId");
+
+		client.get("userId", function(err, reply) {
+			var userId = reply, 
+			userKey = "user:" + reply;
+			client.hmset(userKey, "name", data.userName, "email", data.userEmail);
+		});
+	})
 });
 

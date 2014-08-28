@@ -18,9 +18,11 @@ angular.module('myApp.controllers', [])
       $location.path('/' + docInfo.title.replace(/\s+/g, ''));
     }
   }])
-  .controller('registrationCtrl', ['$scope', 'socket', function($scope, socket) {
-    $scope.createUser = function() {
-      socket.emit('createUser', { userName: $scope.userName, userEmail: $scope.userEmail });
+  .controller('registrationCtrl', ['$scope', '$location', 'socket', function($scope, $location, socket) {
+    $scope.saveUser = function() {
+      socket.emit('saveUser', { userName: $scope.userName, userEmail: $scope.userEmail });
+      //$location.path('/');
+      $scope.isRegistered = true;
     }
   }])
   .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', function($scope, $routeParams, docInfo, socket) {

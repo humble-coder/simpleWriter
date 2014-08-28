@@ -1,3 +1,5 @@
 <input ng-model="userName" placeholder="Username">
 <input ng-model="userEmail" placeholder="Email address">
-<button type="button" id="save-button" ng-click="createUser();">Register</button>
+<button type="button" id="save-button" ng-click="saveUser()">Register</button>
+<aside ng-show="isRegistered" id="registration-confirmation">You have successfully registered!</aside>
+<a href="#/" ng-show="isRegistered">Make some documents!</a>
