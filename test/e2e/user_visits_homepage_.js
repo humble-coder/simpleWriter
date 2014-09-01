@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Freestyle Chat homepage', function() {
+describe('simpleWriter homepage', function() {
   browser.get('#/');
 
   it('should have a title', function() {
