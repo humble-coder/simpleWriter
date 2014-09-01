@@ -5,14 +5,27 @@ app = express(),
 server = http.createServer(app),
 redis = require('redis'),
 client = redis.createClient(),
+uuid = require('node-uuid'),
+bodyParser = require('body-parser'),
 io = require('socket.io').listen(server);
 
 server.listen(8000);
 
 app.use(express.static(path.join(__dirname, 'app')));
+app.use(bodyParser.json());
 
 app.get('/', function(req, res) {
 	res.send('./index.html');
+});
+
+app.post('/login', function(req, res) {
+	var userInfo = req.body.data;
+	client.hgetall(userInfo.userName, function(err, obj) {
+		if (userInfo.userPassword === obj.password) {
+			var token = uuid.v1();
+			res.json({id: token, user: obj});
+		}
+	});
 });
 
 io.sockets.on('connection', function(socket) {
@@ -41,13 +54,15 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('saveUser', function(data) {
-		client.incr("userId");
-
-		client.get("userId", function(err, reply) {
-			var userId = reply, 
-			userKey = "user:" + reply;
-			client.hmset(userKey, "name", data.userName, "email", data.userEmail);
+		client.incr("userId", function(err, reply) {
+			var userId = reply;
+			client.hmset(data.userName, "email", data.userEmail, "password", data.userPassword, "id", userId);
 		});
+
+		// client.get("userId", function(err, reply) {
+		// 	var userId = reply;
+			
+		// });
 	})
 });
 

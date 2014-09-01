@@ -1,5 +1,8 @@
-<input ng-model="userName" placeholder="Username">
-<input ng-model="userEmail" placeholder="Email address">
+<input type="text" ng-model="userName" placeholder="Username">
+<input type="text" ng-model="userEmail" placeholder="Email address">
+<input type="password" ng-model="userPassword">
+<input type="password" ng-model="passwordConfirmation">
 <button type="button" id="save-button" ng-click="saveUser()">Register</button>
 <aside ng-show="isRegistered" id="registration-confirmation">You have successfully registered!</aside>
+<aside>{{errorMessage}}</aside>
 <a href="#/" ng-show="isRegistered">Make some documents!</a>

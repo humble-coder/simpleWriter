@@ -24,4 +24,19 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 			});
 		}
 	};
+}).factory('authService', function($http, Session) {
+	var authService = {};
+
+	authService.login = function(credentials) {
+		return $http.post('/login', { data: credentials }).then(function(res) {
+			Session.create(res.data.id, res.data.user.id)
+			return res.data.user;
+		});
+	}
+
+	authService.isAuthenticated = function() {
+		return !!Session.userId;
+	}
+
+	return authService;
 });

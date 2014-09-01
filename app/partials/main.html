@@ -2,4 +2,5 @@
 <button type="button" id="save-button" ng-click="saveDocument();" ng-show="isMakingDocument">Save</button>
 <input ng-model="docTitle" ng-show="isMakingDocument">
 <textarea rows="20" cols="20" ng-model="docBody" ng-show="isMakingDocument"></textarea>
-<a href="#/register">Register</a>
+<a href="#/register" ng-hide="currentUser">Register</a>
+<a href="#/login" ng-hide="currentUser">Login</a>

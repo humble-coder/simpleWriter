@@ -16,7 +16,7 @@
   <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
-<body>
+<body ng-controller="appCtrl">
   <!-- <ul class="menu">
     <li><a href="#/main">view1</a></li>
     <li><a href="#/view2">view2</a></li>
@@ -25,7 +25,8 @@
   <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
   <![endif]-->
-
+  <p ng-show="currentUser">{{currentUser.email}}</p>
+  <p ng-show="newUserMessage">{{newUserMessage}}</p>
   <div ng-view></div>
 
   <!-- In production use:
@@ -39,5 +40,6 @@
   <script src="js/controllers.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/directives.js"></script>
+  <script src="js/constants.js"></script>
 </body>
 </html>
