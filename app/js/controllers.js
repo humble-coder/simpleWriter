@@ -29,7 +29,7 @@ angular.module('myApp.controllers', [])
       docInfo.title = $scope.docTitle,
       docInfo.body = $scope.docBody;
 
-      $location.path('/' + docInfo.title.replace(/\s+/g, ''));
+      $location.path('/documents/' + docInfo.title.replace(/\s+/g, ''));
     }
   }])
   .controller('registrationCtrl', ['$scope', 'socket', '$location', 'AUTH_EVENTS', '$rootScope', function($scope, socket, $location, AUTH_EVENTS, $rootScope) {

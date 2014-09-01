@@ -15,6 +15,6 @@ config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/', {templateUrl: './partials/main.html', controller: 'mainCtrl'});
   $routeProvider.when('/register', {templateUrl: './partials/registration.html', controller: 'registrationCtrl'});
   $routeProvider.when('/login', {templateUrl: './partials/login.html', controller: 'loginCtrl'});
-  $routeProvider.when('/:name', {templateUrl: './partials/document.html', controller: 'documentCtrl'});
+  $routeProvider.when('/documents/:name', {templateUrl: './partials/document.html', controller: 'documentCtrl'});
   $routeProvider.otherwise({redirectTo: '/'});
 }]);

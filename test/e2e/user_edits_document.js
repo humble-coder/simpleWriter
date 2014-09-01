@@ -26,7 +26,7 @@ describe('Document editing', function() {
   });
 
   it('should let another user/collaborator edit document body and title', function() {
-    browser.get('#/Newdocument');
+    browser.get('#/documents/Newdocument');
 
     expect($('[ng-show=isEditingDocument]').isDisplayed()).toBeFalsy();
     expect($('[ng-hide=isEditingDocument]').isDisplayed()).toBeTruthy();

@@ -7,13 +7,15 @@ describe('User registration', function() {
 
   	var userName = element(by.model('userName')),
   	userEmail = element(by.model('userEmail')),
-  	createUserButton = element(by.id("save-button"));
-
+    userPassword = element(by.model('userPassword')),
+    passwordConfirmation = element(by.model('passwordConfirmation')),
+  	createUserButton = element(by.id('save-user'));
   	
   	userName.sendKeys('New User');
   	userEmail.sendKeys('mark.philosophe@gmail.com');
+    userPassword.sendKeys('secret');
+    passwordConfirmation.sendKeys('secret');
   	createUserButton.click();
-    expect(element(by.id("registration-confirmation")).getText()).toEqual("You have successfully registered!");
+    expect(element(by.id('registration-confirmation')).getText()).toEqual("Welcome, New User! Go ahead and login!");
   });
-
 });
