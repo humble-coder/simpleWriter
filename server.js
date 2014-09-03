@@ -7,6 +7,9 @@ redis = require('redis'),
 client = redis.createClient(),
 uuid = require('node-uuid'),
 bodyParser = require('body-parser'),
+nodeRSA = require('node-rsa'),
+key = new nodeRSA({b: 512}),
+salt = require('./salt.js'),
 io = require('socket.io').listen(server);
 
 server.listen(8000);
@@ -21,7 +24,9 @@ app.get('/', function(req, res) {
 app.post('/login', function(req, res) {
 	var userInfo = req.body.data;
 	client.hgetall(userInfo.userName, function(err, obj) {
-		if (userInfo.userPassword === obj.password) {
+		var password = salt.substring(0, salt.length/2) + userInfo.userPassword + salt.substring(salt.length/2, salt.length);
+
+		if (password === key.decrypt(obj.password, "utf8")) {
 			var token = uuid.v1();
 			res.json({id: token, user: obj});
 		}
@@ -31,13 +36,8 @@ app.post('/login', function(req, res) {
 io.sockets.on('connection', function(socket) {
 	socket.on('saveDocument', function(data) {
 		var docName = data.title.replace(/\s+/g, '');
-		//userId = data.userId;
 		client.hmset(docName, "title", data.title, "body", data.body);
 		socket.join(docName);
-
-		// client.sadd(userId + ":documents", docName, function(err, obj) {
-			
-		// });
 	});
 
 	socket.on('getDocument', function(data, fn) {
@@ -55,14 +55,13 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('saveUser', function(data) {
 		client.incr("userId", function(err, reply) {
-			var userId = reply;
-			client.hmset(data.userName, "email", data.userEmail, "password", data.userPassword, "id", userId);
-		});
+			var userId = reply,
+			saltLength = salt.length,
+			stringToEncrypt = salt.substring(0, saltLength/2) + data.userPassword + salt.substring(saltLength/2, saltLength),
+			password = key.encrypt(stringToEncrypt, 'base64');
 
-		// client.get("userId", function(err, reply) {
-		// 	var userId = reply;
-			
-		// });
+			client.hmset(data.userName, "email", data.userEmail, "password", password, "id", userId);
+		});
 	})
 });
 
