@@ -33,6 +33,27 @@ app.post('/login', function(req, res) {
 	});
 });
 
+app.post('/new-user', function(req, res) {
+	var userInfo = req.body.data;
+	client.incr("userId", function(err, reply) {
+		client.hgetall(userInfo.userName, function(err, obj) {
+			if (!obj) {
+				var userId = reply,
+				saltLength = salt.length,
+				stringToEncrypt = salt.substring(0, saltLength/2) + userInfo.userPassword + salt.substring(saltLength/2, saltLength),
+				password = key.encrypt(stringToEncrypt, 'base64');
+
+				client.hmset(userInfo.userName, "name", userInfo.userName, "email", userInfo.userEmail, "password", password, "id", userId, function(err, obj) {
+					res.json({user: userInfo.userName});
+				});
+			}
+			else {
+				res.json({message: "Username already taken. Please try another name."});
+			}
+		});
+	});
+});
+
 io.sockets.on('connection', function(socket) {
 	socket.on('saveDocument', function(data) {
 		var docName = data.title.replace(/\s+/g, '');
@@ -52,16 +73,5 @@ io.sockets.on('connection', function(socket) {
 			io.to(data.name).emit('documentChanged', data);
 		});
 	});
-
-	socket.on('saveUser', function(data) {
-		client.incr("userId", function(err, reply) {
-			var userId = reply,
-			saltLength = salt.length,
-			stringToEncrypt = salt.substring(0, saltLength/2) + data.userPassword + salt.substring(saltLength/2, saltLength),
-			password = key.encrypt(stringToEncrypt, 'base64');
-
-			client.hmset(data.userName, "email", data.userEmail, "password", password, "id", userId);
-		});
-	})
 });
 

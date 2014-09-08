@@ -13,8 +13,8 @@ angular.module('myApp.controllers', [])
     }
   });
 
-  $scope.$on('registration-success', function(event, user) {
-    $scope.newUserMessage = "Welcome, " + user.userName + "! Go ahead and login!";
+  $scope.$on('registration-success', function(event, userName) {
+    $scope.newUserMessage = "Welcome, " + userName + "! Go ahead and login!";
   });
 
 }])
@@ -32,16 +32,19 @@ angular.module('myApp.controllers', [])
       $location.path('/documents/' + docInfo.title.replace(/\s+/g, ''));
     }
   }])
-  .controller('registrationCtrl', ['$scope', 'socket', '$location', 'AUTH_EVENTS', '$rootScope', function($scope, socket, $location, AUTH_EVENTS, $rootScope) {
+  .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope) {
     $scope.errorMessage = "";
 
     $scope.saveUser = function() {
       var userData = { userName: $scope.userName, userEmail: $scope.userEmail, userPassword: $scope.userPassword };
       if ($scope.userPassword === $scope.passwordConfirmation) {
         $scope.errorMessage = "";
-        socket.emit('saveUser', userData);
-        $rootScope.$broadcast(AUTH_EVENTS.registrationSuccess, userData)
-        $location.path('/login');
+        registrationService.createUser(userData).then(function(userName) {
+          $rootScope.$broadcast(AUTH_EVENTS.registrationSuccess, userName);
+          $location.path('/login');
+        }, function(error) {
+          $scope.errorMessage = error.message;
+        });
       }
       else {
         $scope.errorMessage = "Password and password confirmation don't match.";

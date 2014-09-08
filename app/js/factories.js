@@ -39,4 +39,14 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 	}
 
 	return authService;
+}).factory('registrationService', function($http) {
+	var registrationService = {};
+
+	registrationService.createUser = function(userData) {
+		return $http.post('/new-user', { data: userData }).then(function(res) {
+			return res.data.user;
+		});
+	}
+
+	return registrationService;
 });
