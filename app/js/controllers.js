@@ -9,12 +9,20 @@ angular.module('myApp.controllers', [])
   $scope.$on('auth-login-success', function(event, user) {
     if (authService.isAuthenticated) {
       $scope.currentUser = user;
-      $scope.newUserMessage = "";
+      $scope.userMessage = "";
     }
   });
 
-  $scope.$on('registration-success', function(event, userName) {
-    $scope.newUserMessage = "Welcome, " + userName + "! Go ahead and login!";
+  $scope.$on('auth-login-failed', function(event, response) {
+    $scope.userMessage = response.error;
+  });
+
+  $scope.$on('registration-success', function(event, response) {
+    $scope.userMessage = "Welcome, " + response.userName + "! Go ahead and login!";
+  });
+
+  $scope.$on('registration-failed', function(event, response) {
+    $scope.userMessage = response.error;
   });
 
 }])
@@ -39,11 +47,14 @@ angular.module('myApp.controllers', [])
       var userData = { userName: $scope.userName, userEmail: $scope.userEmail, userPassword: $scope.userPassword };
       if ($scope.userPassword === $scope.passwordConfirmation) {
         $scope.errorMessage = "";
-        registrationService.createUser(userData).then(function(userName) {
-          $rootScope.$broadcast(AUTH_EVENTS.registrationSuccess, userName);
-          $location.path('/login');
-        }, function(error) {
-          $scope.errorMessage = error.message;
+        registrationService.createUser(userData).then(function(response) {
+          if (response.error) {
+            $rootScope.$broadcast(AUTH_EVENTS.registrationFailed, response);
+          }
+          else {
+            $rootScope.$broadcast(AUTH_EVENTS.registrationSuccess, response);
+            $location.path('/login');
+          }
         });
       }
       else {
@@ -52,15 +63,17 @@ angular.module('myApp.controllers', [])
     }
   }])
   .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'authService', '$location', function($scope, $rootScope, AUTH_EVENTS, authService, $location) {
-
     $scope.credentials = {};
 
     $scope.login = function(credentials) {
-      authService.login(credentials).then(function(user) {
-        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, user);
-        $location.path('/');
-      }, function() {
-        $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
+      authService.login(credentials).then(function(response) {
+        if (response.name) {
+          $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, response);
+          $location.path('/');
+        }
+        else {
+          $rootScope.$broadcast(AUTH_EVENTS.loginFailed, response);
+        }
       });
     }
   }])

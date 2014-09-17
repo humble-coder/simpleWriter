@@ -3,5 +3,7 @@
 
 <textarea rows="20" cols="20" ng-model="docBody" ng-show="isEditingDocument"></textarea>
 
-<button type="button" id="edit-button" ng-click="editDocument();" ng-hide="isEditingDocument">Edit</button>
-<button type="button" id="update-button" ng-click="updateDocument();" ng-show="isEditingDocument">Update</button>
+<div id="edit-doc-area" ng-show="currentUser">
+	<button type="button" id="edit-button" ng-click="editDocument();" ng-hide="isEditingDocument">Edit</button>
+	<button type="button" id="update-button" ng-click="updateDocument();" ng-show="isEditingDocument">Update</button>
+</div>

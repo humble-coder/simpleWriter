@@ -20,7 +20,7 @@ describe('User registration', function() {
     passwordConfirmation.sendKeys('secret');
   	createUserButton.click();
 
-    expect(element(by.id('registration-confirmation')).getText()).toEqual("Welcome, New User! Go ahead and login!");
+    expect(element(by.id('user-message')).getText()).toEqual("Welcome, New User! Go ahead and login!");
   });
 
   it('should not allow a user to register with mismatching passwords', function() {

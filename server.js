@@ -24,12 +24,15 @@ app.get('/', function(req, res) {
 app.post('/login', function(req, res) {
 	var userInfo = req.body.data;
 	client.hgetall(userInfo.userName, function(err, obj) {
-		var password = salt.substring(0, salt.length/2) + userInfo.userPassword + salt.substring(salt.length/2, salt.length);
-
-		if (password === key.decrypt(obj.password, "utf8")) {
-			var token = uuid.v1();
-			res.json({id: token, user: obj});
+		if (obj) {
+			var password = salt.substring(0, salt.length/2) + userInfo.userPassword + salt.substring(salt.length/2, salt.length);
+			if (password === key.decrypt(obj.password, "utf8")) {
+				var token = uuid.v1();
+				res.json({id: token, user: obj});
+			}
+			else res.json({error: "Invalid password/email combination."});
 		}
+		else res.json({error: "Invalid password/email combination."});
 	});
 });
 
@@ -44,11 +47,14 @@ app.post('/new-user', function(req, res) {
 				password = key.encrypt(stringToEncrypt, 'base64');
 
 				client.hmset(userInfo.userName, "name", userInfo.userName, "email", userInfo.userEmail, "password", password, "id", userId, function(err, obj) {
-					res.json({user: userInfo.userName});
+					res.json({userName: userInfo.userName});
 				});
 			}
 			else {
-				res.json({message: "Username already taken. Please try another name."});
+				if (obj.email == userInfo.userEmail)
+					res.json({error: "Email already taken."});
+				else
+					res.json({error: "Username already taken."});
 			}
 		});
 	});

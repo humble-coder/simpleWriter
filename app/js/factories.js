@@ -29,8 +29,12 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 
 	authService.login = function(credentials) {
 		return $http.post('/login', { data: credentials }).then(function(res) {
-			Session.create(res.data.id, res.data.user.id)
-			return res.data.user;
+			if (res.data.user) {
+				Session.create(res.data.id, res.data.user.id)
+				return res.data.user;
+			}
+			else
+				return res.data;
 		});
 	}
 
@@ -44,7 +48,7 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 
 	registrationService.createUser = function(userData) {
 		return $http.post('/new-user', { data: userData }).then(function(res) {
-			return res.data.user;
+			return res.data;
 		});
 	}
 
