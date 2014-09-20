@@ -36,13 +36,43 @@ describe('User registration', function() {
     userName.sendKeys('Another User');
     userEmail.sendKeys('user2@example.com');
     userPassword.sendKeys('secret');
-    userPassword.sendKeys('whoops');
+    passwordConfirmation.sendKeys('whoops');
     createUserButton.click();
 
     expect(element(by.id('error-message')).getText()).toEqual("Password and password confirmation don't match.");
   });
 
-  // it('should not allow a user to register a duplicate username', function() {
-    
-  // })
+  it('should not allow a user to register a duplicate username', function() {
+
+    var userName = element(by.model('userName')),
+    userEmail = element(by.model('userEmail')),
+    userPassword = element(by.model('userPassword')),
+    passwordConfirmation = element(by.model('passwordConfirmation')),
+    createUserButton = element(by.id('save-user'));
+
+    userName.sendKeys('New User');
+    userEmail.sendKeys('userwhatever@example.com');
+    userPassword.sendKeys('secret');
+    passwordConfirmation.sendKeys('secret');
+    createUserButton.click();
+
+    expect(element(by.id('user-message')).getText()).toEqual("Username already taken.");
+  });
+
+  it('should not allow a user to register a duplicate email', function() {
+
+    var userName = element(by.model('userName')),
+    userEmail = element(by.model('userEmail')),
+    userPassword = element(by.model('userPassword')),
+    passwordConfirmation = element(by.model('passwordConfirmation')),
+    createUserButton = element(by.id('save-user'));
+
+    userName.sendKeys('Yet Another User');
+    userEmail.sendKeys('user@example.com');
+    userPassword.sendKeys('secret');
+    passwordConfirmation.sendKeys('secret');
+    createUserButton.click();
+
+    expect(element(by.id('user-message')).getText()).toEqual("Email already taken.");
+  });
 });
