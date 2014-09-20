@@ -33,6 +33,6 @@ describe('User logs in', function() {
     element(by.id('password')).sendKeys('secret');
     element(by.id('login')).click();
 
-    expect(element(by.id('error-message')).getText()).toEqual("Password and password confirmation don't match.");
+    expect(element(by.id('user-message')).getText()).toEqual("Invalid username/password combination.");
   });
 });

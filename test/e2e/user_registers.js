@@ -1,5 +1,7 @@
 'use strict';
 
+
+
 describe('User registration', function() {
 
   beforeEach(function() {
@@ -39,4 +41,8 @@ describe('User registration', function() {
 
     expect(element(by.id('error-message')).getText()).toEqual("Password and password confirmation don't match.");
   });
+
+  // it('should not allow a user to register a duplicate username', function() {
+    
+  // })
 });

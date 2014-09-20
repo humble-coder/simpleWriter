@@ -30,9 +30,9 @@ app.post('/login', function(req, res) {
 				var token = uuid.v1();
 				res.json({id: token, user: obj});
 			}
-			else res.json({error: "Invalid password/email combination."});
+			else res.json({error: "Invalid username/password combination."});
 		}
-		else res.json({error: "Invalid password/email combination."});
+		else res.json({error: "Invalid username/password combination."});
 	});
 });
 
