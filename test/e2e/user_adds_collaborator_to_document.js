@@ -18,16 +18,18 @@ describe('Collaborator adding', function() {
     element(by.id('save-button')).click();
 
     var searchButton = element(by.id('search-button')),
-    query = element(by.model('query')),
-    addCollaboratorButton = element(by.id('user5')),
-    resultsList = element.all(by.repeater('user in users')),
-    collaboratorList = element.all(by.repeater('collaborator in collaborators'));
+    query = element(by.model('query'));
 
     query.sendKeys('user5');
     searchButton.click();
 
+    var resultsList = element.all(by.repeater('user in users'));
+
     expect(resultsList.count()).toEqual(1);
     expect(resultsList.get(0).getText()).toEqual('user5');
+
+    var collaboratorList = element.all(by.repeater('collaborator in collaborators')),
+    addCollaboratorButton = element(by.id('user5'));
 
     addCollaboratorButton.click();
 
