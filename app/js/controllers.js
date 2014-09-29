@@ -35,7 +35,8 @@ angular.module('myApp.controllers', [])
 
     $scope.saveDocument = function() {
       docInfo.title = $scope.docTitle,
-      docInfo.body = $scope.docBody;
+      docInfo.body = $scope.docBody,
+      docInfo.owner = $scope.currentUser.name;
 
       $location.path('/documents/' + docInfo.title.replace(/\s+/g, ''));
     }
@@ -83,19 +84,33 @@ angular.module('myApp.controllers', [])
 
     if (docInfo.title && docInfo.body) {
       // If document is new, then...
-      $scope.docTitle = docInfo.title;
-      $scope.docBody = docInfo.body;
-      socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body });
+      $scope.docTitle = docInfo.title,
+      $scope.docBody = docInfo.body,
+      $scope.collaborators = [],
+      $scope.docOwner = docInfo.owner;
+
+      socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner });
     }
     else {
       socket.emit('getDocument', { name: $routeParams.name }, function(data) {
-        $scope.docTitle = data.title;
-        $scope.docBody = data.body;
+        $scope.docTitle = data.title,
+        $scope.docBody = data.body,
+        $scope.collaborators = data.collaborators || [];
       });
     }
 
     socket.on('documentChanged', function(data) {
       $scope.docBody = data.body;
+    });
+
+    socket.on('collaboratorAdded', function(data) {
+      var index = $scope.users.indexOf(data.user);
+      $scope.collaborators.push(data.user);
+      $scope.users.splice(index, 1);
+    });
+
+    socket.on('displaySearch', function(results) {
+      $scope.users = results;
     });
 
     $scope.updateDocument = function() {
@@ -105,5 +120,13 @@ angular.module('myApp.controllers', [])
 
     $scope.editDocument = function() {
       $scope.isEditingDocument = true;
+    }
+
+    $scope.addCollaborator = function(user) {
+      socket.emit('addCollaborator', { user: user, document: $scope.docTitle });
+    }
+
+    $scope.searchUsers = function() {
+      socket.emit('searchUsers', { query: $scope.query, document: $scope.docTitle });
     }
   }]);
