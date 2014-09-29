@@ -11,9 +11,8 @@
 	Search collaborators: <input ng-model="query">
 	<button type="button" id="search-button" ng-click="searchUsers();">Search</button>
 	<ul>
-		<li ng-repeat="user in users">{{user}} <button type="button" class="add-collaborator" ng-click="addCollaborator(user);">Add</button>
+		<li ng-repeat="user in users">{{user}} <button type="button" id="{{user}}" ng-click="addCollaborator(user);">Add</button>
 		</li>
-		
 	</ul>
 	<button type="button" id="edit-button" ng-click="editDocument();" ng-hide="isEditingDocument">Edit</button>
 	<button type="button" id="update-button" ng-click="updateDocument();" ng-show="isEditingDocument">Update</button>
