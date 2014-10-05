@@ -20,22 +20,27 @@ describe('Collaborator adding', function() {
     var searchButton = element(by.id('search-button')),
     query = element(by.model('query'));
 
-    query.sendKeys('user5');
-    searchButton.click();
+    query.sendKeys('user');
+    searchButton.click().then(function() {
+        element.all(by.repeater('user in users')).then(function(rows) {
+            console.log(rows);
+        });
+    });
 
-    var resultsList = element.all(by.repeater('user in users'));
+    //var resultsList = element.all(by.repeater('user in users'));
+    //var resultsList = element(by.repeater('user in users').row(0));
 
-    expect(resultsList.count()).toEqual(1);
-    expect(resultsList.get(0).getText()).toEqual('user5');
+    //expect(resultsList.count()).toEqual(1);
+    // expect(resultsList.getText()).toEqual('user5');
 
-    var collaboratorList = element.all(by.repeater('collaborator in collaborators')),
-    addCollaboratorButton = element(by.id('user5'));
+    // var collaboratorList = element.all(by.repeater('collaborator in collaborators')),
+    // addCollaboratorButton = element(by.id('user5'));
 
-    addCollaboratorButton.click();
+    // addCollaboratorButton.click();
 
-    expect(collaboratorList.count()).toEqual(1);
-    expect(collaboratorList.get(0).getText()).toEqual('user5');
-    expect(resultsList.count()).toEqual(0);
+    // expect(collaboratorList.count()).toEqual(1);
+    // expect(collaboratorList.get(0).getText()).toEqual('user5');
+    // expect(resultsList.count()).toEqual(0);
   });
 });
 

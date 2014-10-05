@@ -87,6 +87,7 @@ angular.module('myApp.controllers', [])
       $scope.docTitle = docInfo.title,
       $scope.docBody = docInfo.body,
       $scope.collaborators = [],
+      $scope.hasCollaborators = false,
       $scope.docOwner = docInfo.owner;
 
       socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner });
@@ -95,7 +96,9 @@ angular.module('myApp.controllers', [])
       socket.emit('getDocument', { name: $routeParams.name }, function(data) {
         $scope.docTitle = data.title,
         $scope.docBody = data.body,
-        $scope.collaborators = data.collaborators || [];
+        $scope.collaborators = data.collaborators || [],
+        $scope.hasCollaborators = $scope.collaborators.length > 0,
+        $scope.docOwner = data.owner;
       });
     }
 
@@ -105,6 +108,8 @@ angular.module('myApp.controllers', [])
 
     socket.on('collaboratorAdded', function(data) {
       var index = $scope.users.indexOf(data.user);
+      if (!$scope.hasCollaborators)
+        $scope.hasCollaborators = true;
       $scope.collaborators.push(data.user);
       $scope.users.splice(index, 1);
     });
@@ -127,6 +132,6 @@ angular.module('myApp.controllers', [])
     }
 
     $scope.searchUsers = function() {
-      socket.emit('searchUsers', { query: $scope.query, document: $scope.docTitle });
+      socket.emit('searchUsers', { query: $scope.query, user: $scope.currentUser, collaborators: $scope.collaborators, document: $scope.docTitle });
     }
   }]);

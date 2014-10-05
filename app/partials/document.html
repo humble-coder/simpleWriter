@@ -4,14 +4,15 @@
 <textarea rows="20" cols="20" ng-model="docBody" ng-show="isEditingDocument"></textarea>
 
 <div id="edit-doc-area" ng-show="currentUser">
-	<h3>Current Collaborators</h3>
+	<h2>Author: {{docOwner}}</h2>
+	<h3>Current Collaborators <span ng-hide="hasCollaborators">(None yet!)</span></h3>
   <ul>
 		<li ng-repeat="collaborator in collaborators">{{collaborator}}</li>
 	</ul>
 	Search collaborators: <input ng-model="query">
 	<button type="button" id="search-button" ng-click="searchUsers();">Search</button>
 	<ul>
-		<li ng-repeat="user in users">{{user}} <button type="button" id="{{user}}" ng-click="addCollaborator(user);">Add</button>
+		<li ng-repeat="user in users">{{user}} <button type="button" ng-click="addCollaborator(user);">Add</button>
 		</li>
 	</ul>
 	<button type="button" id="edit-button" ng-click="editDocument();" ng-hide="isEditingDocument">Edit</button>

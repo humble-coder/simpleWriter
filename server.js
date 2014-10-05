@@ -113,8 +113,10 @@ io.sockets.on('connection', function(socket) {
 			var results = [];
 			for (var i = 0, length = ids.length; i < length; i++) {
 				client.hgetall("users:" + ids[i], function(err, user) {
-					results.push(user.name);
-					io.to(data.document).emit('displaySearch', results);
+					if ((user.name != data.user.name) && (data.collaborators.indexOf(user.name) == -1)) {
+						results.push(user.name);
+						io.to(data.document).emit('displaySearch', results);
+					}
 				});
 			}
 		});
