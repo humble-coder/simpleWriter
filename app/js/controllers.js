@@ -4,10 +4,11 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-.controller('appCtrl', ['$scope', 'authService', function($scope, authService) {
+.controller('appCtrl', ['$scope', 'authService', '$window', 'Session', function($scope, authService, $window, Session) {
 
   $scope.$on('auth-login-success', function(event, user) {
     if (authService.isAuthenticated) {
+      $window.sessionStorage.token = Session.id;
       $scope.currentUser = user;
       $scope.userMessage = "";
     }
@@ -78,7 +79,7 @@ angular.module('myApp.controllers', [])
       });
     }
   }])
-  .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', function($scope, $routeParams, docInfo, socket) {
+  .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', function($scope, $routeParams, docInfo, socket, Session) {
 
     $scope.isEditingDocument = false;
 
@@ -90,7 +91,7 @@ angular.module('myApp.controllers', [])
       $scope.hasCollaborators = false,
       $scope.docOwner = docInfo.owner;
 
-      socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner });
+      socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id });
     }
     else {
       socket.emit('getDocument', { name: $routeParams.name }, function(data) {

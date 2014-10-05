@@ -10,6 +10,7 @@ bodyParser = require('body-parser'),
 nodeRSA = require('node-rsa'),
 key = new nodeRSA({b: 512}),
 salt = require('./salt.js'),
+sessionRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
 io = require('socket.io').listen(server);
 
 server.listen(8000);
@@ -76,10 +77,12 @@ app.post('/new-user', function(req, res) {
 io.sockets.on('connection', function(socket) {
 	socket.on('saveDocument', function(data) {
 		var docName = data.title.replace(/\s+/g, '');
-		client.hmset(docName, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
-			if (!err)
-				socket.join(docName);
-		});
+		if (sessionRegex.test(data.sessionId)) {
+			client.hmset(docName, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
+				if (!err)
+					socket.join(docName);
+			});
+		}
 	});
 
 	socket.on('getDocument', function(data, fn) {
@@ -95,31 +98,38 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('updateDocument', function(data) {
-		client.hmset(data.name, "body", data.body, function(err, reply) {
-			if (!err)
-				io.to(data.name).emit('documentChanged', data);
-		});
+		if (sessionRegex.test(data.sessionId)) {
+			client.hmset(data.name, "body", data.body, function(err, reply) {
+				if (!err)
+					io.to(data.name).emit('documentChanged', data);
+			});
+		}
 	});
 
 	socket.on('addCollaborator', function(data) {
-		client.sadd(data.document + "-collaborators", data.user, function(err, reply) {
-			if (!err)
-				io.to(data.document).emit('collaboratorAdded', data);
-		});
+		if (sessionRegex.test(data.sessionId)) {
+			client.sadd(data.document + "-collaborators", data.user, function(err, reply) {
+				if (!err)
+					io.to(data.document).emit('collaboratorAdded', data);
+			});
+		}
+
 	});
 
 	socket.on('searchUsers', function(data) {
-		client.smembers("users:" + data.query + ":index", function(err, ids) {
-			var results = [];
-			for (var i = 0, length = ids.length; i < length; i++) {
-				client.hgetall("users:" + ids[i], function(err, user) {
-					if ((user.name != data.user.name) && (data.collaborators.indexOf(user.name) == -1)) {
-						results.push(user.name);
-						io.to(data.document).emit('displaySearch', results);
-					}
-				});
-			}
-		});
+		if (sessionRegex.test(data.sessionId)) {
+			client.smembers("users:" + data.query + ":index", function(err, ids) {
+				var results = [];
+				for (var i = 0, length = ids.length; i < length; i++) {
+					client.hgetall("users:" + ids[i], function(err, user) {
+						if ((user.name != data.user.name) && (data.collaborators.indexOf(user.name) == -1)) {
+							results.push(user.name);
+							io.to(data.document).emit('displaySearch', results);
+						}
+					});
+				}
+			});
+		}
 	});
 });
 
