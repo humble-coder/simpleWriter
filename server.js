@@ -26,12 +26,15 @@ app.post('/login', function(req, res) {
 	var userInfo = req.body.data;
 	client.hgetall(userInfo.userName, function(err, obj) {
 		if (obj) {
-			var userId = obj.id;
+			var userId = obj.id,
+			userObject = obj;
+			userObject.name = userInfo.userName;
+			
 			client.hgetall("users:" + userId, function(err, user) {
 				var password = salt.substring(0, salt.length/2) + userInfo.userPassword + salt.substring(salt.length/2, salt.length);
 				if (password === key.decrypt(user.password, "utf8")) {
 					var token = uuid.v1();
-					res.json({id: token, user: user});
+					res.json({id: token, user: userObject});
 				}
 				else res.json({error: "Invalid username/password combination."});
 			});

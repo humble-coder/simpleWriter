@@ -6,11 +6,23 @@
 angular.module('myApp.controllers', [])
 .controller('appCtrl', ['$scope', 'authService', '$window', 'Session', function($scope, authService, $window, Session) {
 
+  $scope.userMessage = "";
+
+  if ($window.sessionStorage.token && $window.sessionStorage.user) {
+    var user = JSON.parse($window.sessionStorage.user),
+    token = $window.sessionStorage.token;
+
+    Session.create(token, user);
+    $scope.currentUser = user;
+  }
+
   $scope.$on('auth-login-success', function(event, user) {
     if (authService.isAuthenticated) {
-      $window.sessionStorage.token = Session.id;
-      $scope.currentUser = user;
+      $window.sessionStorage.token = Session.id,
+      $scope.currentUser = user,
       $scope.userMessage = "";
+
+      $window.sessionStorage.setItem("user", JSON.stringify(user));
     }
   });
 
