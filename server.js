@@ -22,6 +22,16 @@ app.get('/', function(req, res) {
 	res.send('./index.html');
 });
 
+app.post('/recover-session', function(req, res) {
+	var sessionData = req.body.data;
+	client.hgetall("session:" + sessionData.user.id, function(err, session) {
+		if (session && (session.id === sessionData.token))
+			res.json({sessionOK: true});
+		else
+			res.json({sessionOK: false});
+	});
+});
+
 app.post('/login', function(req, res) {
 	var userInfo = req.body.data;
 	client.hgetall(userInfo.userName, function(err, obj) {
@@ -34,7 +44,14 @@ app.post('/login', function(req, res) {
 				var password = salt.substring(0, salt.length/2) + userInfo.userPassword + salt.substring(salt.length/2, salt.length);
 				if (password === key.decrypt(user.password, "utf8")) {
 					var token = uuid.v1();
-					res.json({id: token, user: userObject});
+					client.hmset("session:" + user.id, "id", token, function(err, reply1) {
+						if (reply1) {
+							client.expire("session:" + user.id, 18000, function(err, reply2) {
+								if (reply2)
+									res.json({id: token, user: userObject});
+							});
+						}
+					});
 				}
 				else res.json({error: "Invalid username/password combination."});
 			});

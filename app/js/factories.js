@@ -51,6 +51,18 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 			return res.data;
 		});
 	}
-
 	return registrationService;
+}).factory('sessionRecoveryService', function($http, Session) {
+	var sessionRecoveryService = {};
+
+	sessionRecoveryService.login = function(sessionData) {
+		return $http.post('/recover-session', { data: sessionData }).then(function(res) {
+			if (res.data.sessionOK) {
+				Session.create(sessionData.user.id, sessionData.token);
+				return true;
+			}
+		});
+	}
+
+	return sessionRecoveryService;
 });

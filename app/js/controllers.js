@@ -1,19 +1,18 @@
 'use strict';
 
-
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-.controller('appCtrl', ['$scope', 'authService', '$window', 'Session', function($scope, authService, $window, Session) {
+.controller('appCtrl', ['$scope', 'authService', '$window', 'Session', 'sessionRecoveryService', function($scope, authService, $window, Session, sessionRecoveryService) {
 
   $scope.userMessage = "";
 
   if ($window.sessionStorage.token && $window.sessionStorage.user) {
-    var user = JSON.parse($window.sessionStorage.user),
-    token = $window.sessionStorage.token;
-
-    Session.create(token, user);
-    $scope.currentUser = user;
+    var sessionData = {user: JSON.parse($window.sessionStorage.user), token: $window.sessionStorage.token};
+    sessionRecoveryService.login(sessionData).then(function(sessionOK) {
+      if (sessionOK)
+        $scope.currentUser = sessionData.user;
+    });
   }
 
   $scope.$on('auth-login-success', function(event, user) {
