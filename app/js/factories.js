@@ -41,7 +41,7 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 	authService.isAuthenticated = function() {
 		return !!Session.userId;
 	}
-
+	
 	return authService;
 }).factory('registrationService', function($http) {
 	var registrationService = {};
@@ -58,11 +58,22 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 	sessionRecoveryService.login = function(sessionData) {
 		return $http.post('/recover-session', { data: sessionData }).then(function(res) {
 			if (res.data.sessionOK) {
-				Session.create(sessionData.user.id, sessionData.token);
+				Session.create(sessionData.token, sessionData.user.id);
 				return true;
 			}
 		});
 	}
-
 	return sessionRecoveryService;
+}).factory('sessionDestroyService', function($http, Session) {
+	var sessionDestroyService = {};
+
+	sessionDestroyService.logout = function(sessionData) {
+		return $http.post('/destroy-session', { data: sessionData }).then(function(res) {
+			if (res.data.sessionDestroyed) {
+				Session.destroy();
+				return true;
+			}
+		});
+	}
+	return sessionDestroyService;
 });

@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-.controller('appCtrl', ['$scope', 'authService', '$window', 'Session', 'sessionRecoveryService', function($scope, authService, $window, Session, sessionRecoveryService) {
+.controller('appCtrl', ['$scope', 'authService', '$window', 'Session', 'sessionRecoveryService', 'sessionDestroyService', function($scope, authService, $window, Session, sessionRecoveryService, sessionDestroyService) {
 
   $scope.userMessage = "";
 
@@ -12,6 +12,16 @@ angular.module('myApp.controllers', [])
     sessionRecoveryService.login(sessionData).then(function(sessionOK) {
       if (sessionOK)
         $scope.currentUser = sessionData.user;
+    });
+  }
+
+  $scope.logout = function() {
+    var sessionData = {user: $scope.currentUser, token: Session.id};
+    sessionDestroyService.logout(sessionData).then(function(sessionDestroyed) {
+      if (sessionDestroyed) {
+        $scope.currentUser = null;
+        $scope.userMessage = "You have successfully logged out.";
+      }
     });
   }
 

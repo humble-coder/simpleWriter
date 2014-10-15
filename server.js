@@ -32,6 +32,21 @@ app.post('/recover-session', function(req, res) {
 	});
 });
 
+app.post('/destroy-session', function(req, res) {
+	var sessionData = req.body.data;
+	console.log(sessionData);
+	client.hgetall("session:" + sessionData.user.id, function(err, session) {
+		if (session && (session.id === sessionData.token)) {
+			client.del("session:" + sessionData.user.id, function(err, reply) {
+				if (reply)
+					res.json({sessionDestroyed: true})
+				else
+					res.json({sessionDestroyed: false});
+			});
+		}
+	});
+});
+
 app.post('/login', function(req, res) {
 	var userInfo = req.body.data;
 	client.hgetall(userInfo.userName, function(err, obj) {
