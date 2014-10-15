@@ -52,7 +52,7 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 
 				$window.sessionStorage.token = null,
 				$window.sessionStorage.user = null;
-				
+
 				return true;
 			}
 		});
@@ -81,28 +81,4 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 		});
 	}
 	return registrationService;
-}).factory('sessionRecoveryService', function($http, Session) {
-	var sessionRecoveryService = {};
-
-	sessionRecoveryService.login = function(sessionData) {
-		return $http.post('/recover-session', { data: sessionData }).then(function(res) {
-			if (res.data.sessionOK) {
-				Session.create(sessionData.token, sessionData.user.id);
-				return true;
-			}
-		});
-	}
-	return sessionRecoveryService;
-}).factory('sessionDestroyService', function($http, Session) {
-	var sessionDestroyService = {};
-
-	sessionDestroyService.logout = function(sessionData) {
-		return $http.post('/destroy-session', { data: sessionData }).then(function(res) {
-			if (res.data.sessionDestroyed) {
-				Session.destroy();
-				return true;
-			}
-		});
-	}
-	return sessionDestroyService;
 });
