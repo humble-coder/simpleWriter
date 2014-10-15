@@ -3,13 +3,13 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-.controller('appCtrl', ['$scope', 'authService', '$window', 'Session', 'sessionRecoveryService', 'sessionDestroyService', function($scope, authService, $window, Session, sessionRecoveryService, sessionDestroyService) {
+.controller('appCtrl', ['$scope', 'authService', '$window', 'Session', function($scope, authService, $window, Session) {
 
   $scope.userMessage = "";
 
   if ($window.sessionStorage.token && $window.sessionStorage.user) {
     var sessionData = {user: JSON.parse($window.sessionStorage.user), token: $window.sessionStorage.token};
-    sessionRecoveryService.login(sessionData).then(function(sessionOK) {
+    authService.recoverSession(sessionData).then(function(sessionOK) {
       if (sessionOK)
         $scope.currentUser = sessionData.user;
     });
@@ -17,7 +17,7 @@ angular.module('myApp.controllers', [])
 
   $scope.logout = function() {
     var sessionData = {user: $scope.currentUser, token: Session.id};
-    sessionDestroyService.logout(sessionData).then(function(sessionDestroyed) {
+    authService.logout(sessionData).then(function(sessionDestroyed) {
       if (sessionDestroyed) {
         $scope.currentUser = null;
         $scope.userMessage = "You have successfully logged out.";
@@ -27,11 +27,8 @@ angular.module('myApp.controllers', [])
 
   $scope.$on('auth-login-success', function(event, user) {
     if (authService.isAuthenticated) {
-      $window.sessionStorage.token = Session.id,
       $scope.currentUser = user,
       $scope.userMessage = "";
-
-      $window.sessionStorage.setItem("user", JSON.stringify(user));
     }
   });
 

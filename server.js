@@ -32,9 +32,8 @@ app.post('/recover-session', function(req, res) {
 	});
 });
 
-app.post('/destroy-session', function(req, res) {
+app.post('/logout', function(req, res) {
 	var sessionData = req.body.data;
-	console.log(sessionData);
 	client.hgetall("session:" + sessionData.user.id, function(err, session) {
 		if (session && (session.id === sessionData.token)) {
 			client.del("session:" + sessionData.user.id, function(err, reply) {

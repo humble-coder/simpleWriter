@@ -24,13 +24,20 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 			});
 		}
 	};
-}).factory('authService', function($http, Session) {
+}).factory('authService', function($http, $window, Session) {
 	var authService = {};
 
 	authService.login = function(credentials) {
 		return $http.post('/login', { data: credentials }).then(function(res) {
 			if (res.data.user) {
-				Session.create(res.data.id, res.data.user.id)
+				var user = res.data.user,
+				token = res.data.id;
+
+				Session.create(token, user.id);
+
+				$window.sessionStorage.token = Session.id,
+				$window.sessionStorage.user = JSON.stringify(user);
+
 				return res.data.user;
 			}
 			else
@@ -38,8 +45,30 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 		});
 	}
 
+	authService.logout = function(sessionData) {
+		return $http.post('/logout', { data: sessionData }).then(function(res) {
+			if (res.data.sessionDestroyed) {
+				Session.destroy();
+
+				$window.sessionStorage.token = null,
+				$window.sessionStorage.user = null;
+				
+				return true;
+			}
+		});
+	}
+
 	authService.isAuthenticated = function() {
 		return !!Session.userId;
+	}
+
+	authService.recoverSession = function(sessionData) {
+		return $http.post('/recover-session', { data: sessionData }).then(function(res) {
+			if (res.data.sessionOK) {
+				Session.create(sessionData.token, sessionData.user.id);
+				return true;
+			}
+		});
 	}
 	
 	return authService;
