@@ -50,8 +50,7 @@ angular.module('myApp.factories', []).factory('socket', function($rootScope) {
 			if (res.data.sessionDestroyed) {
 				Session.destroy();
 
-				$window.sessionStorage.token = null,
-				$window.sessionStorage.user = null;
+				$window.sessionStorage = {};
 
 				return true;
 			}
