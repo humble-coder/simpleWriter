@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-.controller('appCtrl', ['$scope', 'authService', '$window', 'Session', function($scope, authService, $window, Session) {
+.controller('appCtrl', ['$scope', 'authService', '$window', 'Session', '$location', function($scope, authService, $window, Session, $location) {
 
   $scope.userMessage = "";
 
@@ -19,14 +19,15 @@ angular.module('myApp.controllers', [])
     var sessionData = {user: $scope.currentUser, token: Session.id};
     authService.logout(sessionData).then(function(sessionDestroyed) {
       if (sessionDestroyed) {
-        $scope.currentUser = null;
+        $scope.currentUser = null,
         $scope.userMessage = "You have successfully logged out.";
+        $location.path('/');
       }
     });
   }
 
   $scope.$on('auth-login-success', function(event, user) {
-    if (authService.isAuthenticated) {
+    if (authService.isAuthenticated()) {
       $scope.currentUser = user,
       $scope.userMessage = "";
     }
@@ -57,14 +58,14 @@ angular.module('myApp.controllers', [])
       docInfo.body = $scope.docBody,
       docInfo.owner = $scope.currentUser.name;
 
-      $location.path('/documents/' + docInfo.title.replace(/\s+/g, ''));
+      $location.path('/' + docInfo.owner + '/' + docInfo.title.replace(/\s+/g, ''));
     }
   }])
   .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope) {
     $scope.errorMessage = "";
 
     $scope.saveUser = function() {
-      var userData = { userName: $scope.userName, userEmail: $scope.userEmail, userPassword: $scope.userPassword };
+      var userData = { userName: $scope.userName, userEmail: $scope.userEmail, userPassword: $scope.userPassword, userPasswordConfirmation: $scope.passwordConfirmation };
       if ($scope.userPassword === $scope.passwordConfirmation) {
         $scope.errorMessage = "";
         registrationService.createUser(userData).then(function(response) {
@@ -82,8 +83,11 @@ angular.module('myApp.controllers', [])
       }
     }
   }])
-  .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'authService', '$location', function($scope, $rootScope, AUTH_EVENTS, authService, $location) {
+  .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'authService', '$location', 'Session', function($scope, $rootScope, AUTH_EVENTS, authService, $location, Session) {
     $scope.credentials = {};
+
+    if (authService.isAuthenticated())
+      $location.path('/');
 
     $scope.login = function(credentials) {
       authService.login(credentials).then(function(response) {
@@ -97,32 +101,36 @@ angular.module('myApp.controllers', [])
       });
     }
   }])
-  .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', function($scope, $routeParams, docInfo, socket, Session) {
+  .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', '$location', function($scope, $routeParams, docInfo, socket, Session, $location) {
 
     $scope.isEditingDocument = false;
 
     if (docInfo.title && docInfo.body) {
       // If document is new, then...
       $scope.docTitle = docInfo.title,
+      $scope.oldTitle = docInfo.title,
       $scope.docBody = docInfo.body,
-      $scope.collaborators = [],
-      $scope.hasCollaborators = false,
+      $scope.collaborators = docInfo.collaborators || [],
+      $scope.hasCollaborators = $scope.collaborators.length > 0,
       $scope.docOwner = docInfo.owner;
 
       socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id });
     }
     else {
-      socket.emit('getDocument', { name: $routeParams.name }, function(data) {
-        $scope.docTitle = data.title,
-        $scope.docBody = data.body,
-        $scope.collaborators = data.collaborators || [],
+      socket.emit('getDocument', { user: $routeParams.username, docId: $routeParams.docId }, function(doc) {
+        $scope.docTitle = doc.title,
+        $scope.oldTitle = doc.title,
+        $scope.docBody = doc.body,
+        $scope.collaborators = doc.collaborators || [],
         $scope.hasCollaborators = $scope.collaborators.length > 0,
-        $scope.docOwner = data.owner;
+        $scope.docOwner = doc.owner;
       });
     }
 
     socket.on('documentChanged', function(data) {
-      $scope.docBody = data.body;
+      console.log("Changed!");
+      docInfo = data;
+      $location.path('/' + data.owner + '/' + data.title.replace(/\s+/g, ''));
     });
 
     socket.on('collaboratorAdded', function(data) {
@@ -138,7 +146,7 @@ angular.module('myApp.controllers', [])
     });
 
     $scope.updateDocument = function() {
-      socket.emit('updateDocument', { name: $routeParams.name, body: $scope.docBody });
+      socket.emit('updateDocument', { owner: $routeParams.username, docId: $routeParams.docId, title: $scope.docTitle, body: $scope.docBody, oldTitle: $scope.oldTitle, sessionId: Session.id });
       $scope.isEditingDocument = false;
     }
 
@@ -147,10 +155,10 @@ angular.module('myApp.controllers', [])
     }
 
     $scope.addCollaborator = function(user) {
-      socket.emit('addCollaborator', { user: user, document: $scope.docTitle });
+      socket.emit('addCollaborator', { user: user, document: $scope.docTitle, sessionId: Session.id });
     }
 
     $scope.searchUsers = function() {
-      socket.emit('searchUsers', { query: $scope.query, user: $scope.currentUser, collaborators: $scope.collaborators, document: $scope.docTitle });
+      socket.emit('searchUsers', { query: $scope.query, user: $scope.currentUser, collaborators: $scope.collaborators, document: $scope.docTitle, sessionId: Session.id });
     }
   }]);

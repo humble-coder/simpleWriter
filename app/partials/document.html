@@ -1,6 +1,7 @@
 <h1 id="document-title">{{docTitle}}</h1>
 <article id="document-body">{{docBody}}</article>
 
+<input type="text" ng-model="docTitle" ng-show="isEditingDocument">
 <textarea rows="20" cols="20" ng-model="docBody" ng-show="isEditingDocument"></textarea>
 
 <div id="edit-doc-area" ng-show="currentUser">

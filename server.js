@@ -76,24 +76,28 @@ app.post('/login', function(req, res) {
 
 app.post('/new-user', function(req, res) {
 	var userInfo = req.body.data;
-	client.incr("userId", function(err, reply) {
+	if (userInfo.userPassword != userInfo.userPasswordConfirmation)
+		res.json({error: "Password and password confirmation don't match."});
+	else {
 		client.hgetall(userInfo.userName, function(err, user) {
 			if (!user) {
 				client.hgetall(userInfo.userEmail, function(err, email) {
 					if(!email) {
-						var userId = reply,
-						saltLength = salt.length,
-						stringToEncrypt = salt.substring(0, saltLength/2) + userInfo.userPassword + salt.substring(saltLength/2, saltLength),
-						name = userInfo.userName,
-						password = key.encrypt(stringToEncrypt, 'base64');
+						client.incr("userId", function(err, reply) {
+							var userId = reply,
+							saltLength = salt.length,
+							stringToEncrypt = salt.substring(0, saltLength/2) + userInfo.userPassword + salt.substring(saltLength/2, saltLength),
+							name = userInfo.userName,
+							password = key.encrypt(stringToEncrypt, 'base64');
 
-						client.hmset("users:" + userId, "name", userInfo.userName, "email", userInfo.userEmail, "password", password, "id", userId, function(err, reply2) {
-							client.hmset(userInfo.userName, "email", userInfo.userEmail, "id", userId, function(err, reply3) {
-								client.hmset(userInfo.userEmail, "name", userInfo.userName, "id", userId, function(err, reply4) {
-									for (var index = 0, nameLength = name.length; index < nameLength - 1; index++) {
-										client.sadd("users:" + name.substring(0, index + 2) + ":index", userId);
-									}
-									res.json({userName: userInfo.userName});
+							client.hmset("users:" + userId, "name", userInfo.userName, "email", userInfo.userEmail, "password", password, "id", userId, function(err, reply2) {
+								client.hmset(userInfo.userName, "email", userInfo.userEmail, "id", userId, function(err, reply3) {
+									client.hmset(userInfo.userEmail, "name", userInfo.userName, "id", userId, function(err, reply4) {
+										for (var index = 0, nameLength = name.length; index < nameLength - 1; index++) {
+											client.sadd("users:" + name.substring(0, index + 2) + ":index", userId);
+										}
+										res.json({userName: userInfo.userName});
+									});
 								});
 							});
 						});
@@ -105,27 +109,31 @@ app.post('/new-user', function(req, res) {
 			else
 				res.json({error: "Username already taken."});
 		});
-	});
+	}
 });
 
 io.sockets.on('connection', function(socket) {
 	socket.on('saveDocument', function(data) {
-		var docName = data.title.replace(/\s+/g, '');
+		var docId = data.title.replace(/\s+/g, '');
 		if (sessionRegex.test(data.sessionId)) {
-			client.hmset(docName, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
+			client.hmset(data.owner + "-" + docId, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
 				if (!err)
-					socket.join(docName);
+					socket.join(data.owner + "-" + docId);
 			});
 		}
 	});
 
 	socket.on('getDocument', function(data, fn) {
-		client.hgetall(data.name, function(err, doc) {
-			if (doc) {
-				client.smembers(data.name + "-collaborators", function(err, collaborators) {
-					doc.collaborators = collaborators;
-					fn(doc);
-					socket.join(data.name);
+		client.hgetall(data.user, function(err, info) {
+			if (info) {
+				client.hgetall(data.user + "-" + data.docId, function(err, doc) {
+					if (doc) {
+						client.smembers(data.user + "-" + data.docId + "-collaborators", function(err, collaborators) {
+							doc.collaborators = collaborators;
+							fn(doc);
+							socket.join(data.user + "-" + data.docId);
+						});
+					}
 				});
 			}
 		});
@@ -133,10 +141,24 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('updateDocument', function(data) {
 		if (sessionRegex.test(data.sessionId)) {
-			client.hmset(data.name, "body", data.body, function(err, reply) {
-				if (!err)
-					io.to(data.name).emit('documentChanged', data);
-			});
+			if (data.title == data.oldTitle) {
+				client.hmset(data.owner + "-" + data.docId, "body", data.body, function(err, reply) {
+					if (!err)
+						io.to(data.owner + "-" + data.docId).emit('documentChanged', data);
+				});
+			}
+			else {
+				client.del(data.owner + "-" + data.docId, function(err, reply) {
+					if (!err) {
+						var newDocId = data.title.replace(/\s+/g, ''),
+						oldDocId = data.docId;
+						client.hmset(data.owner + "-" + newDocId, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
+							if (!err)
+								io.to(data.owner + "-" + oldDocId).emit('documentChanged', data);
+						});
+					}
+				});
+			}
 		}
 	});
 
@@ -147,7 +169,6 @@ io.sockets.on('connection', function(socket) {
 					io.to(data.document).emit('collaboratorAdded', data);
 			});
 		}
-
 	});
 
 	socket.on('searchUsers', function(data) {
