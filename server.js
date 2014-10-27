@@ -113,12 +113,14 @@ app.post('/new-user', function(req, res) {
 });
 
 io.sockets.on('connection', function(socket) {
-	socket.on('saveDocument', function(data) {
+	socket.on('saveDocument', function(data, fn) {
 		var docId = data.title.replace(/\s+/g, '');
 		if (sessionRegex.test(data.sessionId)) {
 			client.hmset(data.owner + "-" + docId, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
-				if (!err)
+				if (reply) {
 					socket.join(data.owner + "-" + docId);
+					fn();
+				}
 			});
 		}
 	});
@@ -141,31 +143,19 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('updateDocument', function(data) {
 		if (sessionRegex.test(data.sessionId)) {
-			if (data.title == data.oldTitle) {
-				client.hmset(data.owner + "-" + data.docId, "body", data.body, function(err, reply) {
-					if (!err)
-						io.to(data.owner + "-" + data.docId).emit('documentChanged', data);
-				});
-			}
-			else {
-				client.del(data.owner + "-" + data.docId, function(err, reply) {
-					if (!err) {
-						var newDocId = data.title.replace(/\s+/g, ''),
-						oldDocId = data.docId;
-						client.hmset(data.owner + "-" + newDocId, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
-							if (!err)
-								io.to(data.owner + "-" + oldDocId).emit('documentChanged', data);
-						});
-					}
-				});
-			}
+			docId = data.docId,
+			newDocId = data.title.replace(/\s+/g, '');
+			client.hmset(data.owner + "-" + newDocId, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
+				if (reply)
+					io.to(data.owner + "-" + docId).emit('documentChanged', data);
+			});
 		}
 	});
 
 	socket.on('addCollaborator', function(data) {
 		if (sessionRegex.test(data.sessionId)) {
 			client.sadd(data.document + "-collaborators", data.user, function(err, reply) {
-				if (!err)
+				if (reply)
 					io.to(data.document).emit('collaboratorAdded', data);
 			});
 		}

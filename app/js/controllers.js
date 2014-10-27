@@ -46,7 +46,7 @@ angular.module('myApp.controllers', [])
   });
 
 }])
-  .controller('mainCtrl', ['$scope', '$location', 'docInfo', function($scope, $location, docInfo) {
+  .controller('mainCtrl', ['$scope', '$location', 'docInfo', 'socket', 'Session', function($scope, $location, docInfo, socket, Session) {
     $scope.isMakingDocument = false;
 
     $scope.newDocument = function() {
@@ -58,7 +58,9 @@ angular.module('myApp.controllers', [])
       docInfo.body = $scope.docBody,
       docInfo.owner = $scope.currentUser.name;
 
-      $location.path('/' + docInfo.owner + '/' + docInfo.title.replace(/\s+/g, ''));
+      socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
+        $location.path('/' + docInfo.owner + '/' + docInfo.title.replace(/\s+/g, ''));
+      }); 
     }
   }])
   .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope) {
@@ -105,30 +107,25 @@ angular.module('myApp.controllers', [])
 
     $scope.isEditingDocument = false;
 
-    if (docInfo.title && docInfo.body) {
-      // If document is new, then...
+    $scope.fillPage = function() {
       $scope.docTitle = docInfo.title,
-      $scope.oldTitle = docInfo.title,
       $scope.docBody = docInfo.body,
       $scope.collaborators = docInfo.collaborators || [],
       $scope.hasCollaborators = $scope.collaborators.length > 0,
       $scope.docOwner = docInfo.owner;
+    }
 
-      socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id });
+    if (docInfo.title && docInfo.body && docInfo.owner) {
+      $scope.fillPage();
     }
     else {
       socket.emit('getDocument', { user: $routeParams.username, docId: $routeParams.docId }, function(doc) {
-        $scope.docTitle = doc.title,
-        $scope.oldTitle = doc.title,
-        $scope.docBody = doc.body,
-        $scope.collaborators = doc.collaborators || [],
-        $scope.hasCollaborators = $scope.collaborators.length > 0,
-        $scope.docOwner = doc.owner;
+        docInfo = doc;
+        $scope.fillPage();
       });
     }
 
     socket.on('documentChanged', function(data) {
-      console.log("Changed!");
       docInfo = data;
       $location.path('/' + data.owner + '/' + data.title.replace(/\s+/g, ''));
     });
@@ -146,7 +143,7 @@ angular.module('myApp.controllers', [])
     });
 
     $scope.updateDocument = function() {
-      socket.emit('updateDocument', { owner: $routeParams.username, docId: $routeParams.docId, title: $scope.docTitle, body: $scope.docBody, oldTitle: $scope.oldTitle, sessionId: Session.id });
+      socket.emit('updateDocument', { owner: $routeParams.username, docId: $routeParams.docId, title: $scope.docTitle, body: $scope.docBody, sessionId: Session.id });
       $scope.isEditingDocument = false;
     }
 
