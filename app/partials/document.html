@@ -4,7 +4,7 @@
 <input type="text" ng-model="docTitle" ng-show="isEditingDocument">
 <textarea rows="20" cols="20" ng-model="docBody" ng-show="isEditingDocument"></textarea>
 
-<div id="edit-doc-area" ng-show="currentUser">
+<div id="edit-doc-area" ng-show="docFound">
 	<h2>Author: {{docOwner}}</h2>
 	<h3>Current Collaborators <span ng-hide="hasCollaborators">(None yet!)</span></h3>
   <ul>
@@ -18,4 +18,8 @@
 	</ul>
 	<button type="button" id="edit-button" ng-click="editDocument();" ng-hide="isEditingDocument">Edit</button>
 	<button type="button" id="update-button" ng-click="updateDocument();" ng-show="isEditingDocument">Update</button>
+</div>
+
+<div id="not-found-message" ng-hide="docFound">
+	<p>{{notFoundMessage}}</p>
 </div>

@@ -136,6 +136,9 @@ io.sockets.on('connection', function(socket) {
 							socket.join(data.user + "-" + data.docId);
 						});
 					}
+					else {
+						fn(null);
+					}
 				});
 			}
 		});

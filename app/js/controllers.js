@@ -108,6 +108,7 @@ angular.module('myApp.controllers', [])
     $scope.isEditingDocument = false;
 
     $scope.fillPage = function() {
+      $scope.docFound = true,
       $scope.docTitle = docInfo.title,
       $scope.docBody = docInfo.body,
       $scope.collaborators = docInfo.collaborators || [],
@@ -115,15 +116,16 @@ angular.module('myApp.controllers', [])
       $scope.docOwner = docInfo.owner;
     }
 
-    if (docInfo.title && docInfo.body && docInfo.owner) {
-      $scope.fillPage();
-    }
-    else {
-      socket.emit('getDocument', { user: $routeParams.username, docId: $routeParams.docId }, function(doc) {
+    socket.emit('getDocument', { user: $routeParams.username, docId: $routeParams.docId }, function(doc) {
+      if (doc) {
         docInfo = doc;
         $scope.fillPage();
-      });
-    }
+      }
+      else {
+        $scope.docFound = false,
+        $scope.notFoundMessage = $routeParams.username + " does not have a document entitled '" + $routeParams.docId + "'.";
+      }
+    });
 
     socket.on('documentChanged', function(data) {
       docInfo = data;
