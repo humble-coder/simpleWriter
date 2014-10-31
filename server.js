@@ -8,10 +8,13 @@ client = redis.createClient(),
 uuid = require('node-uuid'),
 bodyParser = require('body-parser'),
 nodeRSA = require('node-rsa'),
-key = new nodeRSA({b: 512}),
+key = new nodeRSA(),
+keyString = require('./key.js'),
 salt = require('./salt.js'),
 sessionRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
 io = require('socket.io').listen(server);
+
+key.loadFromPEM(keyString);
 
 server.listen(8000);
 
