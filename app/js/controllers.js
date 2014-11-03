@@ -63,8 +63,11 @@ angular.module('myApp.controllers', [])
       }); 
     }
   }])
-  .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope) {
+  .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', 'authService', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope, authService) {
     $scope.errorMessage = "";
+
+    if (authService.isAuthenticated())
+      $location.path('/');
 
     $scope.saveUser = function() {
       var userData = { userName: $scope.userName, userEmail: $scope.userEmail, userPassword: $scope.userPassword, userPasswordConfirmation: $scope.passwordConfirmation };
@@ -102,6 +105,20 @@ angular.module('myApp.controllers', [])
         }
       });
     }
+  }])
+  .controller('userCtrl', ['$scope', '$routeParams', 'socket', 'Session', function($scope, $routeParams, socket, Session) {
+    $scope.documents = [],
+    $scope.user = $routeParams.username;
+
+    var documentTitle, documentId;
+
+    socket.emit('getDocuments', { user: $routeParams.username }, function(documents) {
+      for (var i = 0, arrayLength = documents.length; i < arrayLength; i++) {
+        documentTitle = documents[i],
+        documentId = documentTitle.replace(/\s+/g, '');
+        $scope.documents.push({ title: documentTitle, id: documentId });
+      }
+    });
   }])
   .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', '$location', function($scope, $routeParams, docInfo, socket, Session, $location) {
 

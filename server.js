@@ -119,19 +119,23 @@ io.sockets.on('connection', function(socket) {
 	socket.on('saveDocument', function(data, fn) {
 		var docId = data.title.replace(/\s+/g, '');
 		if (sessionRegex.test(data.sessionId)) {
-			client.hmset(data.owner + "-" + docId, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
-				if (reply) {
-					socket.join(data.owner + "-" + docId);
-					fn();
+			client.sadd(data.owner + "-documents", data.title, function(err1, reply1) {
+				if (reply1) {
+					client.hmset(data.owner + "-" + docId, "title", data.title, "body", data.body, "owner", data.owner, function(err2, reply2) {
+						if (reply2) {
+							socket.join(data.owner + "-" + docId);
+							fn();
+						}
+					});
 				}
 			});
 		}
 	});
 
 	socket.on('getDocument', function(data, fn) {
-		client.hgetall(data.user, function(err, info) {
+		client.hgetall(data.user, function(err1, info) {
 			if (info) {
-				client.hgetall(data.user + "-" + data.docId, function(err, doc) {
+				client.hgetall(data.user + "-" + data.docId, function(err2, doc) {
 					if (doc) {
 						client.smembers(data.user + "-" + data.docId + "-collaborators", function(err, collaborators) {
 							doc.collaborators = collaborators;
@@ -144,6 +148,13 @@ io.sockets.on('connection', function(socket) {
 					}
 				});
 			}
+		});
+	});
+
+	socket.on('getDocuments', function(data, fn) {
+		client.smembers(data.user + "-documents", function(err, documents) {
+			if (documents)
+				fn(documents);
 		});
 	});
 
