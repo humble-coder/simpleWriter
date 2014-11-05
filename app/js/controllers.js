@@ -47,6 +47,64 @@ angular.module('myApp.controllers', [])
 
 }])
   .controller('mainCtrl', ['$scope', '$location', 'docInfo', 'socket', 'Session', function($scope, $location, docInfo, socket, Session) {
+    // $scope.isMakingDocument = false;
+
+    // $scope.newDocument = function() {
+    //   $scope.isMakingDocument = true;
+    // }
+
+    // $scope.saveDocument = function() {
+    //   docInfo.title = $scope.docTitle,
+    //   docInfo.body = $scope.docBody,
+    //   docInfo.owner = $scope.currentUser.name;
+
+    //   socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
+    //     $location.path('/' + docInfo.owner + '/' + docInfo.title.replace(/\s+/g, ''));
+    //   }); 
+    // }
+  }])
+  .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', 'authService', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope, authService) {
+    $scope.errorMessage = "";
+
+    if (authService.isAuthenticated())
+      $location.path('/' + $scope.currentUser.name);
+
+    $scope.saveUser = function() {
+      var userData = { userName: $scope.userName, userEmail: $scope.userEmail, userPassword: $scope.userPassword, userPasswordConfirmation: $scope.passwordConfirmation };
+      if ($scope.userPassword === $scope.passwordConfirmation) {
+        $scope.errorMessage = "";
+        registrationService.createUser(userData).then(function(response) {
+          if (response.error)
+            $rootScope.$broadcast(AUTH_EVENTS.registrationFailed, response);
+          else {
+            $rootScope.$broadcast(AUTH_EVENTS.registrationSuccess, response);
+            $location.path('/login');
+          }
+        });
+      }
+      else
+        $scope.errorMessage = "Password and password confirmation don't match.";
+    }
+  }])
+  .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'authService', '$location', 'Session', function($scope, $rootScope, AUTH_EVENTS, authService, $location, Session) {
+    $scope.credentials = {};
+
+    if (authService.isAuthenticated())
+      $location.path('/' + $scope.currentUser.name);
+
+    $scope.login = function(credentials) {
+      authService.login(credentials).then(function(response) {
+        if (response.name) {
+          $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, response);
+          $location.path('/' + response.name);
+        }
+        else
+          $rootScope.$broadcast(AUTH_EVENTS.loginFailed, response);
+      });
+    }
+  }])
+  .controller('newDocCtrl', ['$scope', '$location', 'docInfo', 'socket', 'authService', 'Session', function($scope, $location, docInfo, socket, authService, Session) {
+
     $scope.isMakingDocument = false;
 
     $scope.newDocument = function() {
@@ -62,53 +120,15 @@ angular.module('myApp.controllers', [])
         $location.path('/' + docInfo.owner + '/' + docInfo.title.replace(/\s+/g, ''));
       }); 
     }
+
   }])
-  .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', 'authService', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope, authService) {
-    $scope.errorMessage = "";
-
-    if (authService.isAuthenticated())
-      $location.path('/');
-
-    $scope.saveUser = function() {
-      var userData = { userName: $scope.userName, userEmail: $scope.userEmail, userPassword: $scope.userPassword, userPasswordConfirmation: $scope.passwordConfirmation };
-      if ($scope.userPassword === $scope.passwordConfirmation) {
-        $scope.errorMessage = "";
-        registrationService.createUser(userData).then(function(response) {
-          if (response.error) {
-            $rootScope.$broadcast(AUTH_EVENTS.registrationFailed, response);
-          }
-          else {
-            $rootScope.$broadcast(AUTH_EVENTS.registrationSuccess, response);
-            $location.path('/login');
-          }
-        });
-      }
-      else {
-        $scope.errorMessage = "Password and password confirmation don't match.";
-      }
-    }
-  }])
-  .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'authService', '$location', 'Session', function($scope, $rootScope, AUTH_EVENTS, authService, $location, Session) {
-    $scope.credentials = {};
-
-    if (authService.isAuthenticated())
-      $location.path('/');
-
-    $scope.login = function(credentials) {
-      authService.login(credentials).then(function(response) {
-        if (response.name) {
-          $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, response);
-          $location.path('/');
-        }
-        else {
-          $rootScope.$broadcast(AUTH_EVENTS.loginFailed, response);
-        }
-      });
-    }
-  }])
-  .controller('userCtrl', ['$scope', '$routeParams', 'socket', 'Session', function($scope, $routeParams, socket, Session) {
+  .controller('userCtrl', ['$scope', '$routeParams', 'socket', function($scope, $routeParams, socket) {
     $scope.documents = [],
-    $scope.user = $routeParams.username;
+    $scope.user = $routeParams.username,
+    $scope.ownsProfile = false;
+
+    if ($scope.currentUser && ($scope.currentUser.name === $routeParams.username))
+      $scope.ownsProfile = true;
 
     var documentTitle, documentId;
 

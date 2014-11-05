@@ -2,3 +2,4 @@
 <ul>
 	<li ng-repeat="document in documents"><a ng-href="#/{{user}}/{{document.id}}">{{document.title}}</a></li>
 </ul>
+<a href="#/new-document" ng-show="ownsProfile">New Document</a>

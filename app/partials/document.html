@@ -20,6 +20,8 @@
 	<button type="button" id="update-button" ng-click="updateDocument();" ng-show="isEditingDocument">Update</button>
 </div>
 
+<a ng-href="#/{{currentUser.name}}">Back to Profile</a>
+
 <div id="not-found-message" ng-hide="docFound">
 	<p>{{notFoundMessage}}</p>
 </div>
