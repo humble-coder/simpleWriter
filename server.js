@@ -135,12 +135,18 @@ io.sockets.on('connection', function(socket) {
 	socket.on('getDocument', function(data, fn) {
 		client.hgetall(data.user, function(err1, info) {
 			if (info) {
-				client.hgetall(data.user + "-" + data.docId, function(err2, doc) {
+				var docChannel = data.user + "-" + data.docId,
+				docCollaborators = docChannel + "-collaborators",
+				chatKey = docChannel + "-messages";
+				client.hgetall(docChannel, function(err2, doc) {
 					if (doc) {
-						client.smembers(data.user + "-" + data.docId + "-collaborators", function(err, collaborators) {
+						client.smembers(docCollaborators, function(err3, collaborators) {
 							doc.collaborators = collaborators;
-							fn(doc);
-							socket.join(data.user + "-" + data.docId);
+							client.lrange(chatKey, 0, -1, function(err4, messages) {
+								doc.messages = messages;
+								fn(doc);
+								socket.join(data.user + "-" + data.docId);
+							});
 						});
 					}
 					else {
@@ -171,9 +177,9 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('addCollaborator', function(data) {
 		if (sessionRegex.test(data.sessionId)) {
-			client.sadd(data.document + "-collaborators", data.user, function(err, reply) {
+			client.sadd(data.owner + "-" + data.docId + "-collaborators", data.user, function(err, reply) {
 				if (reply)
-					io.to(data.document).emit('collaboratorAdded', data);
+					io.to(data.owner + "-" + data.docId).emit('collaboratorAdded', data);
 			});
 		}
 	});
@@ -184,14 +190,29 @@ io.sockets.on('connection', function(socket) {
 				var results = [];
 				for (var i = 0, length = ids.length; i < length; i++) {
 					client.hgetall("users:" + ids[i], function(err, user) {
-						if ((user.name != data.user.name) && (data.collaborators.indexOf(user.name) == -1)) {
+						if ((user.name != data.user) && (data.collaborators.indexOf(user.name) == -1)) {
 							results.push(user.name);
-							io.to(data.document).emit('displaySearch', results);
+							io.to(data.owner + "-" + data.docId).emit('displaySearch', results);
 						}
 					});
 				}
 			});
 		}
+	});
+
+	socket.on('newMessage', function(data) {
+		var docChannel = data.owner + "-" + data.docId,
+		chatKey = docChannel + "-messages";
+
+		client.rpush(chatKey, data.message, function(err, reply) {
+			if (reply) {
+				client.lrange(chatKey, 0, -1, function(err, messages) {
+					if (messages.length > 10)
+						client.ltrim(chatKey, 1, -1);
+					io.to(docChannel).emit('messageAdded', data.message);
+				});
+			}
+		});
 	});
 });
 

@@ -150,7 +150,8 @@ angular.module('myApp.controllers', [])
       $scope.docBody = docInfo.body,
       $scope.collaborators = docInfo.collaborators || [],
       $scope.hasCollaborators = $scope.collaborators.length > 0,
-      $scope.docOwner = docInfo.owner;
+      $scope.docOwner = docInfo.owner,
+      $scope.messages = docInfo.messages || [];
     }
 
     socket.emit('getDocument', { user: $routeParams.username, docId: $routeParams.docId }, function(doc) {
@@ -181,6 +182,12 @@ angular.module('myApp.controllers', [])
       $scope.users = results;
     });
 
+    socket.on('messageAdded', function(message) {
+      if ($scope.messages.length > 10)
+        $scope.messages.splice(1);
+      $scope.messages.push(message);
+    });
+
     $scope.updateDocument = function() {
       socket.emit('updateDocument', { owner: $routeParams.username, docId: $routeParams.docId, title: $scope.docTitle, body: $scope.docBody, sessionId: Session.id });
       $scope.isEditingDocument = false;
@@ -191,10 +198,14 @@ angular.module('myApp.controllers', [])
     }
 
     $scope.addCollaborator = function(user) {
-      socket.emit('addCollaborator', { user: user, document: $scope.docTitle, sessionId: Session.id });
+      socket.emit('addCollaborator', { user: user, docId: $routeParams.docId, owner: $scope.docOwner, sessionId: Session.id });
     }
 
     $scope.searchUsers = function() {
-      socket.emit('searchUsers', { query: $scope.query, user: $scope.currentUser, collaborators: $scope.collaborators, document: $scope.docTitle, sessionId: Session.id });
+      socket.emit('searchUsers', { query: $scope.query, user: $scope.currentUser.name, docId: $routeParams.docId, owner: $scope.docOwner, collaborators: $scope.collaborators, sessionId: Session.id });
+    }
+
+    $scope.sendMessage = function() {
+      socket.emit('newMessage', { message: $scope.currentUser.name + ": " + $scope.chatMessage, docId: $routeParams.docId, owner: $scope.docOwner });
     }
   }]);
