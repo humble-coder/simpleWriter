@@ -200,7 +200,7 @@ io.sockets.on('connection', function(socket) {
 		}
 	});
 
-	socket.on('newMessage', function(data) {
+	socket.on('newMessage', function(data, fn) {
 		var docChannel = data.owner + "-" + data.docId,
 		chatKey = docChannel + "-messages";
 
@@ -209,6 +209,7 @@ io.sockets.on('connection', function(socket) {
 				client.lrange(chatKey, 0, -1, function(err, messages) {
 					if (messages.length > 10)
 						client.ltrim(chatKey, 1, -1);
+					fn();
 					io.to(docChannel).emit('messageAdded', data.message);
 				});
 			}

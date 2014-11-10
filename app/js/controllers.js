@@ -47,21 +47,6 @@ angular.module('myApp.controllers', [])
 
 }])
   .controller('mainCtrl', ['$scope', '$location', 'docInfo', 'socket', 'Session', function($scope, $location, docInfo, socket, Session) {
-    // $scope.isMakingDocument = false;
-
-    // $scope.newDocument = function() {
-    //   $scope.isMakingDocument = true;
-    // }
-
-    // $scope.saveDocument = function() {
-    //   docInfo.title = $scope.docTitle,
-    //   docInfo.body = $scope.docBody,
-    //   docInfo.owner = $scope.currentUser.name;
-
-    //   socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
-    //     $location.path('/' + docInfo.owner + '/' + docInfo.title.replace(/\s+/g, ''));
-    //   }); 
-    // }
   }])
   .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', 'authService', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope, authService) {
     $scope.errorMessage = "";
@@ -151,6 +136,7 @@ angular.module('myApp.controllers', [])
       $scope.collaborators = docInfo.collaborators || [],
       $scope.hasCollaborators = $scope.collaborators.length > 0,
       $scope.docOwner = docInfo.owner,
+      $scope.lastMessageTime = 0,
       $scope.messages = docInfo.messages || [];
     }
 
@@ -183,9 +169,9 @@ angular.module('myApp.controllers', [])
     });
 
     socket.on('messageAdded', function(message) {
-      if ($scope.messages.length > 10)
-        $scope.messages.splice(1);
       $scope.messages.push(message);
+      if ($scope.messages.length > 10)
+        $scope.messages = $scope.messages.splice(1);
     });
 
     $scope.updateDocument = function() {
@@ -206,6 +192,12 @@ angular.module('myApp.controllers', [])
     }
 
     $scope.sendMessage = function() {
-      socket.emit('newMessage', { message: $scope.currentUser.name + ": " + $scope.chatMessage, docId: $routeParams.docId, owner: $scope.docOwner });
+      var date = new Date();
+      if (date.getTime() - $scope.lastMessageTime >= 1000) {
+        socket.emit('newMessage', { message: $scope.currentUser.name + ": " + $scope.chatMessage + " [" + date.toUTCString() + "]", docId: $routeParams.docId, owner: $scope.docOwner }, function() {
+          $scope.lastMessageTime = date.getTime(),
+          $scope.chatMessage = "";
+        });
+      }
     }
   }]);
