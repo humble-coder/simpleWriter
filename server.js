@@ -168,10 +168,22 @@ io.sockets.on('connection', function(socket) {
 		if (sessionRegex.test(data.sessionId)) {
 			docId = data.docId,
 			newDocId = data.title.replace(/\s+/g, '');
-			client.hmset(data.owner + "-" + newDocId, "title", data.title, "body", data.body, "owner", data.owner, function(err, reply) {
-				if (reply)
-					io.to(data.owner + "-" + docId).emit('documentChanged', data);
-			});
+			if (docId === newDocId) {
+				client.hmset(data.owner + "-" + docId, "body", data.body, function(err, reply) {
+					if (reply)
+						io.to(data.owner + "-" + docId).emit('documentChanged', data);
+				});
+			}
+			else {
+				client.sadd(data.owner + "-documents", data.title, function(err1, reply1) {
+					if (reply1) {
+						client.hmset(data.owner + "-" + newDocId, "title", data.title, "body", data.body, "owner", data.owner, function(err2, reply2) {
+							if (reply2)
+								io.to(data.owner + "-" + docId).emit('documentChanged', data);
+						});
+					}
+				});
+			}
 		}
 	});
 

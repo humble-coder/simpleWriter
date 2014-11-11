@@ -137,6 +137,7 @@ angular.module('myApp.controllers', [])
       $scope.hasCollaborators = $scope.collaborators.length > 0,
       $scope.docOwner = docInfo.owner,
       $scope.lastMessageTime = 0,
+      $scope.userHasAccess = $scope.currentUser ? ((docInfo.owner === $scope.currentUser.name) || ($scope.collaborators.indexOf($scope.currentUser.name) > -1)) : false,
       $scope.messages = docInfo.messages || [];
     }
 

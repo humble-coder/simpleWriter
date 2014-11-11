@@ -16,8 +16,10 @@
 		<li ng-repeat="user in users">{{user}} <button type="button" ng-click="addCollaborator(user);">Add</button>
 		</li>
 	</ul>
-	<button type="button" id="edit-button" ng-click="editDocument();" ng-hide="isEditingDocument">Edit</button>
-	<button type="button" id="update-button" ng-click="updateDocument();" ng-show="isEditingDocument">Update</button>
+	<section class="editing-buttons" ng-show="userHasAccess">
+		<button type="button" id="edit-button" ng-click="editDocument();" ng-hide="isEditingDocument">Edit</button>
+		<button type="button" id="update-button" ng-click="updateDocument();" ng-show="isEditingDocument">Update</button>
+	</section>
 </div>
 
 <a ng-href="#/{{currentUser.name}}">Back to Profile</a>
