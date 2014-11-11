@@ -2,4 +2,4 @@
 
 /* Directives */
 
-angular.module('myApp.directives', []);
+angular.module('simpleWriter.directives', []);

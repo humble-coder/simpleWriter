@@ -2,7 +2,7 @@
 
 /* Controllers */
 
-angular.module('myApp.controllers', [])
+angular.module('simpleWriter.controllers', [])
 .controller('appCtrl', ['$scope', 'authService', '$window', 'Session', '$location', function($scope, authService, $window, Session, $location) {
 
   $scope.userMessage = "";
@@ -90,6 +90,9 @@ angular.module('myApp.controllers', [])
   }])
   .controller('newDocCtrl', ['$scope', '$location', 'docInfo', 'socket', 'authService', 'Session', function($scope, $location, docInfo, socket, authService, Session) {
 
+    if (!authService.isAuthenticated())
+      $location.path('/login');
+    
     $scope.isMakingDocument = false;
 
     $scope.newDocument = function() {

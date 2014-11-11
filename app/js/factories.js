@@ -2,7 +2,7 @@
 
 /* Services */
 
-angular.module('myApp.factories', []).factory('socket', function($rootScope) {
+angular.module('simpleWriter.factories', []).factory('socket', function($rootScope) {
 	var socket = io.connect();
 	return {
 		on: function(eventName, callback) {

@@ -2,14 +2,14 @@
 
 
 // Declare app level module which depends on filters, and services
-angular.module('myApp', [
+angular.module('simpleWriter', [
   'ngRoute',
-  'myApp.filters',
-  'myApp.services',
-  'myApp.directives',
-  'myApp.controllers',
-  'myApp.factories',
-  'myApp.constants'
+  'simpleWriter.filters',
+  'simpleWriter.services',
+  'simpleWriter.directives',
+  'simpleWriter.controllers',
+  'simpleWriter.factories',
+  'simpleWriter.constants'
 ]).
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/', {templateUrl: './partials/main.html', controller: 'mainCtrl'});

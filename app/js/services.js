@@ -2,7 +2,7 @@
 
 /* Services */
 
-angular.module('myApp.services', []).service('docInfo', function() {
+angular.module('simpleWriter.services', []).service('docInfo', function() {
 	var info = {};
   return info;
 }).service('Session', function () {
