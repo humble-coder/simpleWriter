@@ -5,7 +5,8 @@
 angular.module('simpleWriter.controllers', [])
 .controller('appCtrl', ['$scope', 'authService', '$window', 'Session', '$location', function($scope, authService, $window, Session, $location) {
 
-  $scope.userMessage = "";
+  $scope.currentUser = false,
+  $scope.userMessage = false;
 
   if ($window.sessionStorage.token && $window.sessionStorage.user) {
     var sessionData = {user: JSON.parse($window.sessionStorage.user), token: $window.sessionStorage.token};

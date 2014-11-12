@@ -1,10 +1,26 @@
-<form name="loginForm" ng-controller="loginCtrl"
-      ng-submit="login(credentials)" novalidate>
-  <label for="username">Username</label>
-  <input type="text" id="username"
-         ng-model="credentials.userName">
-  <label for="password">Password:</label>
-  <input type="password" id="password"
-         ng-model="credentials.userPassword">
-  <button type="submit" id="login">Login</button>
+<br>
+<div class="row">
+	<h2 class="large-6 medium-8 small-10 columns">Login!</h2>
+</div>
+
+<form name="login-form" ng-submit="login(credentials)" novalidate>
+	<div class="row">
+		<div class="large-6 medium-8 small-10 columns">
+		  <label for="username">Username</label>
+		  <input type="text" id="username"
+		         ng-model="credentials.userName">
+		</div>
+  </div>
+  <div class="row">
+  	<div class="large-6 medium-8 small-10 columns">
+		  <label for="password">Password:</label>
+		  <input type="password" id="password"
+		         ng-model="credentials.userPassword">
+		</div>
+	</div>
+	<div class="row">
+		<div class="small-4 columns">
+  		<input class="button" type="submit" value="Login">
+  	</div>
+  </div>
 </form>

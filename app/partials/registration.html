@@ -1,6 +1,33 @@
-<input type="text" ng-model="userName" placeholder="Username">
-<input type="text" ng-model="userEmail" placeholder="Email address">
-<input type="password" ng-model="userPassword">
-<input type="password" ng-model="passwordConfirmation">
-<button type="button" id="save-user" ng-click="saveUser()">Register</button>
-<aside id="error-message">{{errorMessage}}</aside>
+<br>
+<div class="row">
+	<h2 class="large-6 medium-8 small-10 columns">Start Writing Today</h2>
+</div>
+
+<form name="registration-form" ng-submit="saveUser()">
+	<div class="row">
+		<div class="large-6 medium-8 small-10 columns">
+			<input type="text" ng-model="userName" placeholder="Your username">
+		</div>
+	</div>
+	<div class="row">
+		<div class="large-6 medium-8 small-10 columns">
+			<input type="text" ng-model="userEmail" placeholder="Your email address">
+		</div>
+	</div>
+	<div class="row">
+		<div class="large-6 medium-8 small-10 columns">
+			<input type="password" ng-model="userPassword" placeholder="Your password">
+		</div>
+	</div>
+	<div class="row">
+		<div class="large-6 medium-8 small-10 columns">
+			<input type="password" ng-model="passwordConfirmation" placeholder="Your password (again)">
+		</div>
+	</div>
+	<div class="row">
+		<div class="small-4 columns">
+			<input class="button" type="submit" value="Register">
+		</div>
+	</div>
+	<aside id="error-message">{{errorMessage}}</aside>
+</form>

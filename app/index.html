@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html lang="en" ng-app="myApp" class="no-js"> <![endif]-->
+<!--[if lt IE 7]>      <html lang="en" ng-app="simpleWriter" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="simpleWriter" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="simpleWriter" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html lang="en" ng-app="simpleWriter" class="no-js"> <![endif]-->
 <html lang="en" ng-app="simpleWriter">
 <head>
   <meta charset="utf-8">
@@ -23,25 +23,56 @@
   <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
   <![endif]-->
-  <nav class="top-bar" data-topbar role="navigation">
-    <ul class="title-area">
-      <li class="name">
-        <h1><a href="#">SimpleWriter</a></h1>
-      </li>
-    </ul>
-    <section class="top-bar-section">
-      <ul class="left">
-        <li><a href="#/register" id="new-user-link" ng-hide="currentUser">Register</a></li>
+  <div class="fixed">
+    <nav class="top-bar" data-topbar role="navigation">
+      <ul class="title-area">
+        <li class="name">
+          <h1><a href="#">SimpleWriter</a></h1>
+        </li>
+        <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
       </ul>
-      <ul class="left">
-        <li><a href="#/login" id="login-link" ng-hide="currentUser">Login</a></li>
-      </ul>
-    </section>
-  </nav>
-    <div ng-show="currentUser">{{currentUser.email}} <button type="button" ng-click="logout()">Logout</button></p>
-      <p ng-show="userMessage" id="user-message">{{userMessage}}</p>
+      <section class="top-bar-section">
+        <ul class="left">
+          <div class="row collapse">
+            <div class="large-8 small-6 columns" ng-hide="currentUser">
+              <li><a href="#/register" id="new-user-link">Register</a></li>
+              <!-- <li><a ng-href="#/{{currentUser.name}}" ng-hide="!currentUser">{{currentUser.email}}</a></li> -->
+            </div>
+            <div class="large-4 small-6 columns" ng-hide="currentUser">
+              <li><a href="#/login">Login</a></li>
+            </div>
+            <!-- <div class="large-4 small-6 columns" ng-show="currentUser">
+              <li><a href="#" ng-show="currentUser" ng-click="logout()">Logout</a></li>
+            </div> -->
+          </div>
+        </ul>
+        <ul class="right">
+          <li class="has-form">
+            <div class="row collapse">
+              <div class="large-8 small-9 columns">
+                <input type="text" placeholder="Search Documents" ng-model="docQuery">
+              </div>
+              <div class="large-4 small-3 columns">
+                <a href="#" class="button expand" ng-click="searchDocs()">Find Docs</a>
+              </div>
+            </div>
+          </li>
+          <li class="has-form">
+            <div class="row collapse">
+              <div class="large-8 small-9 columns">
+                <input type="text" placeholder="Search Users" ng-model="userQuery">
+              </div>
+              <div class="large-4 small-3 columns">
+                <a href="#" class="alert button expand" ng-click="searchUsers()">Find Users</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </nav>
+        <!-- <p ng-show="userMessage" id="user-message">{{userMessage}}</p> -->
     </div>
-  <div ng-view></div>
+  <div class="small-12 columns" ng-view></div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
@@ -50,11 +81,11 @@
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script>$(document).foundation();</script>
   <script src="js/app.js"></script>
-  <script src="js/services.js"></script>
-  <script src="js/factories.js"></script>
-  <script src="js/controllers.js"></script>
-  <script src="js/filters.js"></script>
-  <script src="js/directives.js"></script>
-  <script src="js/constants.js"></script>
+  <script src="js/library/services.js"></script>
+  <script src="js/library/factories.js"></script>
+  <script src="js/library/controllers.js"></script>
+  <script src="js/library/filters.js"></script>
+  <script src="js/library/directives.js"></script>
+  <script src="js/library/constants.js"></script>
 </body>
 </html>

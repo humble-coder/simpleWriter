@@ -1,6 +1,25 @@
-<div id="new-doc-area" ng-show="currentUser">
-	<button type="button" id="new-document" ng-click="newDocument();" ng-hide="isMakingDocument">New Document</button>
-	<button type="button" id="save-button" ng-click="saveDocument();" ng-show="isMakingDocument">Save</button>
-	<input ng-model="docTitle" ng-show="isMakingDocument">
-	<textarea rows="20" cols="20" ng-model="docBody" ng-show="isMakingDocument"></textarea>
+<br>
+<div class="row">
+	<h2 class="large-6 medium-8 small-10 columns">New Document</h2>
 </div>
+
+<form name="new-document-form" ng-submit="saveDocument();">
+	<div class="row">
+		<div class="large-6 medium-8 small-10 columns">
+		  <label for="doc-title">Document Title</label>
+		  <input type="text" id="doc-title"
+		         ng-model="docTitle">
+		</div>
+  </div>
+  <div class="row">
+  	<div class="small-10 columns">
+		  <label for="doc-body">Document Body</label>
+		  <textarea id="doc-body" rows="30" ng-model="docBody"></textarea>
+		</div>
+	</div>
+	<div class="row">
+		<div class="small-4 columns">
+  		<input class="button" type="submit" value="Save">
+  	</div>
+  </div>
+</form>

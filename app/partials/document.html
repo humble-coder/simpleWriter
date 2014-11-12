@@ -1,26 +1,55 @@
-<h1 id="document-title">{{docTitle}}</h1>
-<article id="document-body">{{docBody}}</article>
+<br>
+<div class="row">
+	<div class="small-8 columns">
+		<h1 id="document-title">{{docTitle}}</h1>
+	</div>
+</div>
+<div class="row">
+	<div class="small-10 columns">
+		<article id="document-body">{{docBody}}</article>
+	</div>
+</div>
 
-<input type="text" ng-model="docTitle" ng-show="isEditingDocument">
-<textarea rows="20" cols="20" ng-model="docBody" ng-show="isEditingDocument"></textarea>
+<!-- <input type="text" ng-model="docTitle" ng-show="isEditingDocument">
+<textarea rows="20" cols="20" ng-model="docBody" ng-show="isEditingDocument"></textarea> -->
+<br>
+<section id="doc-info-area" ng-show="docFound">
+	<div class="row">
+		<h2 class="small-8 columns" id="document-author">Author: {{docOwner}}</h2>
+	</div>
+	<div class="row">
+		<h3 class="small-8 columns">Current Collaborators: <span ng-hide="hasCollaborators">(None yet!)</span></h3>
+	</div>
+	<div class="row">
+	  <ul class="small-8 columns">
+			<li ng-repeat="collaborator in collaborators">{{collaborator}}</li>
+		</ul>
+	</div>
+	<div class="row collapse">
+		<div class="small-6 columns">
+			<input type="text" ng-model="query" placeholder="Search Collaborators">
+		</div>
+		<div class="small-6 columns">
+			<a href="#" class="button" ng-click="SearchUsers();">Search</a> 
+		</div>
+	</div>
+<!-- 	<div class="row">
+		<div class="small-6 columns">
+			<a href="#" class="button" ng-click="SearchUsers();">Search</a> 
+		</div>
+	</div> -->
+			<!-- <button type="button" id="search-button" ng-click="searchUsers();">Search</button> -->
+			<ul>
+				<li ng-repeat="user in users">{{user}} <button type="button" ng-click="addCollaborator(user);">Add</button>
+				</li>
+			</ul>
+	</div>
+</section>
 
-<div id="edit-doc-area" ng-show="docFound">
-	<h2>Author: {{docOwner}}</h2>
-	<h3>Current Collaborators <span ng-hide="hasCollaborators">(None yet!)</span></h3>
-  <ul>
-		<li ng-repeat="collaborator in collaborators">{{collaborator}}</li>
-	</ul>
-	Search collaborators: <input ng-model="query">
-	<button type="button" id="search-button" ng-click="searchUsers();">Search</button>
-	<ul>
-		<li ng-repeat="user in users">{{user}} <button type="button" ng-click="addCollaborator(user);">Add</button>
-		</li>
-	</ul>
-	<section class="editing-buttons" ng-show="userHasAccess">
+<!-- <section class="editing-buttons" ng-show="userHasAccess">
 		<button type="button" id="edit-button" ng-click="editDocument();" ng-hide="isEditingDocument">Edit</button>
 		<button type="button" id="update-button" ng-click="updateDocument();" ng-show="isEditingDocument">Update</button>
-	</section>
-</div>
+	</section> -->
 
 <a ng-href="#/{{currentUser.name}}">Back to Profile</a>
 
