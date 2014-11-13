@@ -53,7 +53,7 @@
                 <input type="text" placeholder="Search Documents" ng-model="docQuery">
               </div>
               <div class="large-4 small-3 columns">
-                <a href="#" class="button expand" ng-click="searchDocs()">Find Docs</a>
+                <a href="" class="button expand" ng-click="searchDocs()">Find Docs</a>
               </div>
             </div>
           </li>
@@ -63,7 +63,7 @@
                 <input type="text" placeholder="Search Users" ng-model="userQuery">
               </div>
               <div class="large-4 small-3 columns">
-                <a href="#" class="alert button expand" ng-click="searchUsers()">Find Users</a>
+                <a href="" class="alert button expand" ng-click="searchUsers()">Find Users</a>
               </div>
             </div>
           </li>
@@ -72,7 +72,7 @@
     </nav>
         <!-- <p ng-show="userMessage" id="user-message">{{userMessage}}</p> -->
     </div>
-  <div class="small-12 columns" ng-view></div>
+  <div ng-view></div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>

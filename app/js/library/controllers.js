@@ -145,7 +145,7 @@ angular.module('simpleWriter.controllers', [])
       $scope.messages = docInfo.messages || [];
     }
 
-    socket.emit('getDocument', { user: $routeParams.username, docId: $routeParams.docId }, function(doc) {
+    socket.emit('getDocument', { owner: $routeParams.username, docId: $routeParams.docId }, function(doc) {
       if (doc) {
         docInfo = doc;
         $scope.fillPage();
@@ -170,7 +170,10 @@ angular.module('simpleWriter.controllers', [])
     });
 
     socket.on('displaySearch', function(results) {
-      $scope.users = results;
+      if (results.length)
+        $scope.users = results;
+      else
+        $scope.noResultsMessage = "No users named '" + $scope.query + "' were found.";
     });
 
     socket.on('messageAdded', function(message) {
@@ -193,6 +196,7 @@ angular.module('simpleWriter.controllers', [])
     }
 
     $scope.searchUsers = function() {
+      console.log("Searching!");
       socket.emit('searchUsers', { query: $scope.query, user: $scope.currentUser.name, docId: $routeParams.docId, owner: $scope.docOwner, collaborators: $scope.collaborators, sessionId: Session.id });
     }
 

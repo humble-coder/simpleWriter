@@ -133,9 +133,9 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('getDocument', function(data, fn) {
-		client.hgetall(data.user, function(err1, info) {
+		client.hgetall(data.owner, function(err1, info) {
 			if (info) {
-				var docChannel = data.user + "-" + data.docId,
+				var docChannel = data.owner + "-" + data.docId,
 				docCollaborators = docChannel + "-collaborators",
 				chatKey = docChannel + "-messages";
 				client.hgetall(docChannel, function(err2, doc) {
@@ -145,7 +145,7 @@ io.sockets.on('connection', function(socket) {
 							client.lrange(chatKey, 0, -1, function(err4, messages) {
 								doc.messages = messages;
 								fn(doc);
-								socket.join(data.user + "-" + data.docId);
+								socket.join(docChannel);
 							});
 						});
 					}
@@ -198,16 +198,21 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('searchUsers', function(data) {
 		if (sessionRegex.test(data.sessionId)) {
+			var docChannel = data.owner + "-" + data.docId;
 			client.smembers("users:" + data.query + ":index", function(err, ids) {
 				var results = [];
-				for (var i = 0, length = ids.length; i < length; i++) {
-					client.hgetall("users:" + ids[i], function(err, user) {
-						if ((user.name != data.user) && (data.collaborators.indexOf(user.name) == -1)) {
-							results.push(user.name);
-							io.to(data.owner + "-" + data.docId).emit('displaySearch', results);
-						}
-					});
+				if (ids.length > 1) {
+					for (var i = 0, length = ids.length; i < length; i++) {
+						client.hgetall("users:" + ids[i], function(err, user) {
+							if ((user.name != data.user) && (data.collaborators.indexOf(user.name) == -1)) {
+								results.push(user.name);
+								io.to(docChannel).emit('displaySearch', results);
+							}
+						});
+					}
 				}
+				else
+					io.to(docChannel).emit('displaySearch', results);
 			});
 		}
 	});
