@@ -6,7 +6,7 @@ angular.module('simpleWriter.controllers', [])
 .controller('appCtrl', ['$scope', 'authService', '$window', 'Session', '$location', function($scope, authService, $window, Session, $location) {
 
   $scope.currentUser = false,
-  $scope.userMessage = false;
+  $scope.userMessage = angular.element('#user-message');
 
   if ($window.sessionStorage.token && $window.sessionStorage.user) {
     var sessionData = {user: JSON.parse($window.sessionStorage.user), token: $window.sessionStorage.token};
@@ -20,8 +20,8 @@ angular.module('simpleWriter.controllers', [])
     var sessionData = {user: $scope.currentUser, token: Session.id};
     authService.logout(sessionData).then(function(sessionDestroyed) {
       if (sessionDestroyed) {
-        $scope.currentUser = null,
-        $scope.userMessage = "You have successfully logged out.";
+        $scope.currentUser = null;
+        $scope.userMessage.text("You have successfully logged out.");
         $location.path('/');
       }
     });
@@ -30,27 +30,28 @@ angular.module('simpleWriter.controllers', [])
   $scope.$on('auth-login-success', function(event, user) {
     if (authService.isAuthenticated()) {
       $scope.currentUser = user,
-      $scope.userMessage = "";
+      $scope.userMessage.text("");
     }
   });
 
   $scope.$on('auth-login-failed', function(event, response) {
-    $scope.userMessage = response.error;
+    $scope.userMessage.text(response.error);
   });
 
   $scope.$on('registration-success', function(event, response) {
-    $scope.userMessage = "Welcome, " + response.userName + "! Go ahead and login!";
+    $scope.userMessage.text("Welcome, " + response.userName + "! Go ahead and login!");
   });
 
   $scope.$on('registration-failed', function(event, response) {
-    $scope.userMessage = response.error;
+    $scope.userMessage.text(response.error);
   });
 
 }])
   .controller('mainCtrl', ['$scope', '$location', 'docInfo', 'socket', 'Session', function($scope, $location, docInfo, socket, Session) {
   }])
   .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', 'authService', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope, authService) {
-    $scope.errorMessage = "";
+    $scope.errorMessage = angular.element('#error-message');
+    $scope.userMessage.text("");
 
     if (authService.isAuthenticated())
       $location.path('/' + $scope.currentUser.name);
@@ -58,7 +59,7 @@ angular.module('simpleWriter.controllers', [])
     $scope.saveUser = function() {
       var userData = { userName: $scope.userName, userEmail: $scope.userEmail, userPassword: $scope.userPassword, userPasswordConfirmation: $scope.passwordConfirmation };
       if ($scope.userPassword === $scope.passwordConfirmation) {
-        $scope.errorMessage = "";
+        $scope.errorMessage.text("");
         registrationService.createUser(userData).then(function(response) {
           if (response.error)
             $rootScope.$broadcast(AUTH_EVENTS.registrationFailed, response);
@@ -69,11 +70,12 @@ angular.module('simpleWriter.controllers', [])
         });
       }
       else
-        $scope.errorMessage = "Password and password confirmation don't match.";
+        $scope.errorMessage.text("Password and password confirmation don't match.");
     }
   }])
   .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'authService', '$location', 'Session', function($scope, $rootScope, AUTH_EVENTS, authService, $location, Session) {
     $scope.credentials = {};
+    $scope.userMessage.text("");
 
     if (authService.isAuthenticated())
       $location.path('/' + $scope.currentUser.name);
@@ -90,7 +92,6 @@ angular.module('simpleWriter.controllers', [])
     }
   }])
   .controller('newDocCtrl', ['$scope', '$location', 'docInfo', 'socket', 'authService', 'Session', function($scope, $location, docInfo, socket, authService, Session) {
-
     if (!authService.isAuthenticated())
       $location.path('/login');
     
