@@ -34,16 +34,18 @@
       <section class="top-bar-section">
         <ul class="left">
           <div class="row collapse">
-            <div class="large-8 small-6 columns" ng-hide="currentUser">
+            <div class="small-6 columns" ng-hide="currentUser">
               <li><a href="#/register" id="new-user-link">Register</a></li>
-              <!-- <li><a ng-href="#/{{currentUser.name}}" ng-hide="!currentUser">{{currentUser.email}}</a></li> -->
             </div>
-            <div class="large-4 small-6 columns" ng-hide="currentUser">
+            <div class="small-6 columns" ng-hide="currentUser">
               <li><a href="#/login">Login</a></li>
             </div>
-            <!-- <div class="large-4 small-6 columns" ng-show="currentUser">
-              <li><a href="#" ng-show="currentUser" ng-click="logout()">Logout</a></li>
-            </div> -->
+             <div class="small-6 columns" ng-show="currentUser">
+               <li><a ng-href="#/{{currentUser.name}}">Profile</a></li>
+            </div>
+            <div class="small-6 columns" ng-show="currentUser">
+              <li><a href="#" ng-click="logout()">Logout</a></li>
+            </div>
           </div>
         </ul>
         <ul class="right">

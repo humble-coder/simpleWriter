@@ -137,6 +137,7 @@ angular.module('simpleWriter.controllers', [])
       $scope.docFound = true,
       $scope.docTitle = docInfo.title,
       $scope.docBody = docInfo.body,
+      $scope.docId = $routeParams.docId,
       $scope.collaborators = docInfo.collaborators || [],
       $scope.hasCollaborators = $scope.collaborators.length > 0,
       $scope.docOwner = docInfo.owner,
