@@ -1,17 +1,17 @@
 <div class="row">
-	<div class="small-4 columns end">
+	<div class="small-12 columns">
 		<h1>{{user}}</h1>
 	</div>
 </div>
 <div class="row">
-	<div class="small-8 columns end">
+	<div class="small-12 columns">
 		<ul>
 			<li ng-repeat="document in documents"><a ng-href="#/{{user}}/{{document.id}}">{{document.title}}</a></li>
 		</ul>
 	</div>
 </div>
 <div class="row">
-	<div class="small-8 columns end">
+	<div class="small-12 columns">
 		<a href="#/new-document" class="button" ng-show="ownsProfile">New Document</a>
 	</div>
 </div>

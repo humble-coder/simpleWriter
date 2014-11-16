@@ -6,14 +6,35 @@ angular.module('simpleWriter.controllers', [])
 .controller('appCtrl', ['$scope', 'authService', '$window', 'Session', '$location', function($scope, authService, $window, Session, $location) {
 
   $scope.currentUser = false,
-  $scope.userMessage = angular.element('#user-message');
+  $scope.userMessage = angular.element('#user-message'),
+  $scope.loginLink = angular.element('#login-link'),
+  $scope.registerLink = angular.element('#register-link');
+  $scope.profileLink = angular.element('#profile-link');
+  $scope.logoutLink = angular.element('#logout-link');
+
 
   if ($window.sessionStorage.token && $window.sessionStorage.user) {
     var sessionData = {user: JSON.parse($window.sessionStorage.user), token: $window.sessionStorage.token};
     authService.recoverSession(sessionData).then(function(sessionOK) {
-      if (sessionOK)
+      if (sessionOK) {
         $scope.currentUser = sessionData.user;
+        $scope.showUserTabs();
+      }
     });
+  }
+
+  $scope.showGuestTabs = function() {
+    $scope.registerLink.removeClass('hide');
+    $scope.loginLink.removeClass('hide');
+    $scope.profileLink.addClass('hide');
+    $scope.logoutLink.addClass('hide');
+  }
+
+  $scope.showUserTabs = function() {
+    $scope.profileLink.removeClass('hide');
+    $scope.logoutLink.removeClass('hide');
+    $scope.registerLink.addClass('hide');
+    $scope.loginLink.addClass('hide');
   }
 
   $scope.logout = function() {
@@ -21,6 +42,7 @@ angular.module('simpleWriter.controllers', [])
     authService.logout(sessionData).then(function(sessionDestroyed) {
       if (sessionDestroyed) {
         $scope.currentUser = null;
+        $scope.showGuestTabs();
         $scope.userMessage.text("You have successfully logged out.");
         $location.path('/');
       }
@@ -29,7 +51,8 @@ angular.module('simpleWriter.controllers', [])
 
   $scope.$on('auth-login-success', function(event, user) {
     if (authService.isAuthenticated()) {
-      $scope.currentUser = user,
+      $scope.currentUser = user;
+      $scope.showUserTabs();
       $scope.userMessage.text("");
     }
   });
