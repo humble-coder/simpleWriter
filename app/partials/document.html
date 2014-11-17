@@ -4,7 +4,7 @@
 		<h1 id="document-title">{{docTitle}}</h1>
 	</div>
 	<div class="small-4 columns" ng-show="userHasAccess">
-		<a ng-href="#/{{docId}}/edit" class="button">Edit</a>
+		<a ng-href="#/{{docOwner}}/{{docId}}/edit" class="button">Edit</a>
 	</div>
 </div>
 <div class="row">
@@ -58,19 +58,3 @@
 		</div>
 	</div>
 </section>
-
-<div id="chat-feed" ng-show="docFound">
-	<div class="row">
-		<div class="small-12 columns">
-			<p class="text-left" ng-repeat="message in messages">{{message}}</p>
-		</div>
-	</div>
-	<div class="row collapse">
-		<div class="small-6 columns">
-			<input type="text" ng-model="chatMessage">
-		</div>
-		<div class="small-3 columns end">
-			<button class="button postfix" ng-click="sendMessage();">Send Message</button>
-		</div>
-	</div>
-</div>

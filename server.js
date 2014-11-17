@@ -121,7 +121,7 @@ io.sockets.on('connection', function(socket) {
 		if (sessionRegex.test(data.sessionId)) {
 			client.sadd(data.owner + "-documents", data.title, function(err1, reply1) {
 				if (reply1) {
-					client.hmset(data.owner + "-" + docId, "title", data.title, "body", data.body, "owner", data.owner, function(err2, reply2) {
+					client.hmset(data.owner + "-" + docId, "title", data.title, "body", data.body, "owner", data.owner, "id", docId, function(err2, reply2) {
 						if (reply2) {
 							socket.join(data.owner + "-" + docId);
 							fn();
@@ -141,7 +141,7 @@ io.sockets.on('connection', function(socket) {
 				client.hgetall(docChannel, function(err2, doc) {
 					if (doc) {
 						client.smembers(docCollaborators, function(err3, collaborators) {
-							doc.collaborators = collaborators;
+							doc.collaborators = collaborators || [],
 							client.lrange(chatKey, 0, -1, function(err4, messages) {
 								doc.messages = messages;
 								fn(doc);
@@ -177,7 +177,7 @@ io.sockets.on('connection', function(socket) {
 			else {
 				client.sadd(data.owner + "-documents", data.title, function(err1, reply1) {
 					if (reply1) {
-						client.hmset(data.owner + "-" + newDocId, "title", data.title, "body", data.body, "owner", data.owner, function(err2, reply2) {
+						client.hmset(data.owner + "-" + newDocId, "title", data.title, "body", data.body, "owner", data.owner, "id", newDocId, function(err2, reply2) {
 							if (reply2)
 								io.to(data.owner + "-" + docId).emit('documentChanged', data);
 						});
@@ -224,7 +224,7 @@ io.sockets.on('connection', function(socket) {
 		client.rpush(chatKey, data.message, function(err, reply) {
 			if (reply) {
 				client.lrange(chatKey, 0, -1, function(err, messages) {
-					if (messages.length > 10)
+					if (messages.length > 9)
 						client.ltrim(chatKey, 1, -1);
 					fn();
 					io.to(docChannel).emit('messageAdded', data.message);

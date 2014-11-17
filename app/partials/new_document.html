@@ -5,20 +5,20 @@
 
 <form name="new-document-form" ng-submit="saveDocument();">
 	<div class="row">
-		<div class="large-6 medium-8 small-10 columns">
+		<div class="large-6 medium-8 small-10 columns end">
 		  <label for="doc-title">Document Title</label>
 		  <input type="text" id="doc-title"
 		         ng-model="docTitle">
 		</div>
   </div>
   <div class="row">
-  	<div class="small-10 columns">
+  	<div class="small-10 columns end">
 		  <label for="doc-body">Document Body</label>
 		  <textarea id="doc-body" rows="30" ng-model="docBody"></textarea>
 		</div>
 	</div>
 	<div class="row">
-		<div class="small-4 columns">
+		<div class="small-4 columns end">
   		<input class="button" type="submit" value="Save">
   	</div>
   </div>

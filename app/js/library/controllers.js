@@ -8,8 +8,8 @@ angular.module('simpleWriter.controllers', [])
   $scope.currentUser = false,
   $scope.userMessage = angular.element('#user-message'),
   $scope.loginLink = angular.element('#login-link'),
-  $scope.registerLink = angular.element('#register-link');
-  $scope.profileLink = angular.element('#profile-link');
+  $scope.registerLink = angular.element('#register-link'),
+  $scope.profileLink = angular.element('#profile-link'),
   $scope.logoutLink = angular.element('#logout-link');
 
 
@@ -165,9 +165,7 @@ angular.module('simpleWriter.controllers', [])
       $scope.collaborators = docInfo.collaborators || [],
       $scope.hasCollaborators = $scope.collaborators.length > 0,
       $scope.docOwner = docInfo.owner,
-      $scope.lastMessageTime = 0,
-      $scope.userHasAccess = $scope.currentUser ? ((docInfo.owner === $scope.currentUser.name) || ($scope.collaborators.indexOf($scope.currentUser.name) > -1)) : false,
-      $scope.messages = docInfo.messages || [];
+      $scope.userHasAccess = $scope.currentUser ? ((docInfo.owner === $scope.currentUser.name) || ($scope.collaborators.indexOf($scope.currentUser.name) > -1)) : false;
     }
 
     socket.emit('getDocument', { owner: $routeParams.username, docId: $routeParams.docId }, function(doc) {
@@ -179,11 +177,6 @@ angular.module('simpleWriter.controllers', [])
         $scope.docFound = false,
         $scope.notFoundMessage = $routeParams.username + " does not have a document entitled '" + $routeParams.docId + "'.";
       }
-    });
-
-    socket.on('documentChanged', function(data) {
-      docInfo = data;
-      $location.path('/' + data.owner + '/' + data.title.replace(/\s+/g, ''));
     });
 
     socket.on('collaboratorAdded', function(data) {
@@ -201,29 +194,74 @@ angular.module('simpleWriter.controllers', [])
         $scope.noResultsMessage = "No users named '" + $scope.query + "' were found.";
     });
 
-    socket.on('messageAdded', function(message) {
-      $scope.messages.push(message);
-      if ($scope.messages.length > 10)
-        $scope.messages = $scope.messages.splice(1);
-    });
-
-    $scope.updateDocument = function() {
-      socket.emit('updateDocument', { owner: $routeParams.username, docId: $routeParams.docId, title: $scope.docTitle, body: $scope.docBody, sessionId: Session.id });
-      $scope.isEditingDocument = false;
-    }
-
-    $scope.editDocument = function() {
-      $scope.isEditingDocument = true;
-    }
-
     $scope.addCollaborator = function(user) {
       socket.emit('addCollaborator', { user: user, docId: $routeParams.docId, owner: $scope.docOwner, sessionId: Session.id });
     }
 
     $scope.searchUsers = function() {
-      console.log("Searching!");
       socket.emit('searchUsers', { query: $scope.query, user: $scope.currentUser.name, docId: $routeParams.docId, owner: $scope.docOwner, collaborators: $scope.collaborators, sessionId: Session.id });
     }
+
+  }]).controller('editDocCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', '$location', function($scope, $routeParams, docInfo, socket, Session, $location) {
+
+    $scope.userHasAccess = function(docInfo) {
+      if ($scope.currentUser)
+        return ((docInfo.owner === $scope.currentUser.name) || (docInfo.collaborators.indexOf($scope.currentUser.name) > -1));
+      else
+        return false;
+    }
+
+    $scope.setupPage = function(docInfo) {
+      if (!$scope.userHasAccess(docInfo))
+        $location.path('/' + $routeParams.username + '/' + $routeParams.docId);
+      else {
+        $scope.docOwner = docInfo.owner,
+        $scope.isOwner = $scope.docOwner === $scope.currentUser.name,
+        $scope.docTitleArea = angular.element('#doc-title'),
+        $scope.docBodyArea = angular.element('#doc-body'),
+        $scope.docTitleArea.val(docInfo.title),
+        $scope.docBodyArea.val(docInfo.body),
+        $scope.docBodyArea.on('keyup', $scope.updateDocument),
+        $scope.docTitleArea.on('keyup', $scope.updateDocument),
+        $scope.lastMessageTime = 0,
+        $scope.messages = docInfo.messages || [];
+      }
+    }
+
+    $scope.updateDocument = function() {
+      socket.emit('updateDocument', { owner: $scope.docOwner, user: $scope.currentUser.name, docId: $routeParams.docId, body: $scope.docBodyArea.val(), title: $scope.docTitleArea.val(), sessionId: Session.id });
+    }
+
+    if (!docInfo.id || (docInfo.id !== $routeParams.docId)) {
+      socket.emit('getDocument', { owner: $routeParams.username, docId: $routeParams.docId }, function(doc) {
+        if (doc) {
+          $scope.docFound = true,
+          docInfo = doc,
+          $scope.setupPage(docInfo);
+        }
+        else {
+          $scope.docFound = false,
+          $scope.notFoundMessage = $routeParams.username + " does not have a document entitled '" + $routeParams.docId + "'.";
+        }
+      });
+    }
+
+    socket.on('documentChanged', function(data) {
+      docInfo = data,
+      $scope.docId = data.docId;
+      if ($scope.docId != $routeParams.docId)
+        $location.path('/' + data.owner + '/' + $scope.docId);
+      else {
+        if (docInfo.user != $scope.currentUser.name)
+          $scope.docBodyArea.val(docInfo.body);
+      }
+    });
+
+     socket.on('messageAdded', function(message) {
+        $scope.messages.push(message);
+        if ($scope.messages.length > 9)
+          $scope.messages = $scope.messages.splice(1);
+     });
 
     $scope.sendMessage = function() {
       var date = new Date();
