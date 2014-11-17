@@ -8,7 +8,7 @@
 	</div>
 </div>
 <div class="row">
-	<div class="small-10 columns">
+	<div class="small-10 columns end">
 		<article id="document-body">{{docBody}}</article>
 	</div>
 </div>
@@ -22,11 +22,13 @@
 <br>
 <section id="doc-info-area" ng-show="docFound">
 	<div class="row">
-		<h3 class="small-8 columns" id="document-author">Author: {{docOwner}}</h3>
+		<h3 class="small-8 columns end" id="document-author">Author: {{docOwner}}</h3>
 	</div>
 	<br>
-	<div class="row collapse">
-		<h4 class="small-8 columns">Current Collaborators: <span ng-hide="hasCollaborators">(None yet!)</span></h4>
+	<div class="row">
+		<div class="small-8 columns end">
+			<h4>Current Collaborators: <span ng-hide="hasCollaborators">(None yet!)</span></h4>
+		</div>
 	</div>
 	<div class="row">
 	  <ul class="small-8 columns">

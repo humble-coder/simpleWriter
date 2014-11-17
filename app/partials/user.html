@@ -5,9 +5,22 @@
 </div>
 <div class="row">
 	<div class="small-12 columns">
-		<ul>
-			<li ng-repeat="document in documents"><a ng-href="#/{{user}}/{{document.id}}">{{document.title}}</a></li>
-		</ul>
+		<table>
+			<thead>
+				<tr>
+					<th>Title</th>
+					<th>Last Modified</th>
+					<th>Taking Collaborators?</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="document in documents">
+					<td><a ng-href="#/{{user}}/{{document.id}}">{{document.title}}</td>
+					<td></td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 </div>
 <div class="row">
