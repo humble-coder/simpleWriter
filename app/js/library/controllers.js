@@ -219,6 +219,9 @@ angular.module('simpleWriter.controllers', [])
         $scope.isOwner = $scope.docOwner === $scope.currentUser.name,
         $scope.docTitleArea = angular.element('#doc-title'),
         $scope.docBodyArea = angular.element('#doc-body'),
+        $scope.docTitleDisplay = angular.element('#doc-title-display'),
+        $scope.alertBox = angular.element('#alert'),
+        $scope.docTitleDisplay.text(docInfo.title),
         $scope.docTitleArea.val(docInfo.title),
         $scope.docBodyArea.val(docInfo.body),
         $scope.docBodyArea.on('keyup', $scope.updateDocument),
@@ -230,6 +233,10 @@ angular.module('simpleWriter.controllers', [])
 
     $scope.updateDocument = function() {
       socket.emit('updateDocument', { owner: $scope.docOwner, user: $scope.currentUser.name, docId: $routeParams.docId, body: $scope.docBodyArea.val(), title: $scope.docTitleArea.val(), sessionId: Session.id });
+    }
+
+    $scope.closeWarning = function() {
+      $scope.alertBox.remove();
     }
 
     if (!docInfo.id || (docInfo.id !== $routeParams.docId)) {

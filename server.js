@@ -201,7 +201,7 @@ io.sockets.on('connection', function(socket) {
 			var docChannel = data.owner + "-" + data.docId;
 			client.smembers("users:" + data.query + ":index", function(err, ids) {
 				var results = [];
-				if (ids.length > 1) {
+				if (ids.length >= 1) {
 					for (var i = 0, length = ids.length; i < length; i++) {
 						client.hgetall("users:" + ids[i], function(err, user) {
 							if ((user.name != data.user) && (data.collaborators.indexOf(user.name) == -1)) {

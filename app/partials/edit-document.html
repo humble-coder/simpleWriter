@@ -4,7 +4,11 @@
 		<div class="small-6 columns end">
 		  <label for="doc-title" ng-show="isOwner">Document Title</label>
 		  <input type="text" id="doc-title" ng-show="isOwner">
-		  <h1 ng-hide="isOwner">{{docTitle}}</h1>
+		  <h1 id="doc-title-display" ng-hide="isOwner"></h1>
+		  <div data-alert class="alert-box warning round" id="alert" ng-show="isOwner">
+  			Editing the title will result in another copy of this document.
+  			<a href="" class="close" ng-click="closeWarning();">&times;</a>
+			</div>
 		</div>
   </div>
   <div class="row">
@@ -13,6 +17,7 @@
 		  <textarea id="doc-body" rows="30"></textarea>
 		</div>
 		<div class="small-6 columns">
+			<h2>Chat</h2>
 			<p class="text-left" ng-repeat="message in messages">{{message}}</p>
 			<input type="text" ng-model="chatMessage">
 			<button class="button" ng-click="sendMessage();">Send Message</button>
