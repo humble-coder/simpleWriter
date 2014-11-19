@@ -156,25 +156,53 @@ angular.module('simpleWriter.controllers', [])
   }])
   .controller('userCtrl', ['$scope', '$routeParams', 'socket', function($scope, $routeParams, socket) {
     $scope.documents = [],
+    $scope.sets = [],
     $scope.user = $routeParams.username,
     $scope.ownsProfile = false;
 
     if ($scope.currentUser && ($scope.currentUser.name === $routeParams.username))
       $scope.ownsProfile = true;
 
-    var documentTitle, documentId;
+    var documentTitle, documentId, set, numSets, setNum, start;
+    var setLength = 5;
+
+    // socket.emit('getDocuments', { user: $routeParams.username }, function(documents) {
+    //   for (var i = 0, arrayLength = documents.length; i < arrayLength; i++) {
+    //     documentTitle = documents[i],
+    //     documentId = documentTitle.replace(/\s+/g, '');
+    //     $scope.documents.push({ title: documentTitle, id: documentId });
+    //   }
+    // });
 
     socket.emit('getDocuments', { user: $routeParams.username }, function(documents) {
-      for (var i = 0, arrayLength = documents.length; i < arrayLength; i++) {
-        documentTitle = documents[i],
-        documentId = documentTitle.replace(/\s+/g, '');
-        $scope.documents.push({ title: documentTitle, id: documentId });
+      numSets = Math.ceil((documents.length)/setLength);
+      setNum = 1, start = 0;
+      for (var j = 0; j < numSets; j++) {
+        set = {};
+        set.index = j + 1,
+        set.documents = [];
+        for (var k = start; k < setNum * setLength; k++) {
+          if (documents[k]) {
+            documentTitle = documents[k],
+            documentId = documentTitle.replace(/\s+/g, '');
+            set.documents.push({ title: documents[k], id: documentId });
+          }
+          else
+            break;
+        }
+        $scope.sets.push(set);
+        start += setLength;
+        setNum++;
       }
+      $scope.sets[0].isCurrent = "current";
+      $scope.documents = $scope.sets[0].documents;
     });
+
+    $scope.displaySet = function(set) {
+      
+    }
   }])
   .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', '$location', function($scope, $routeParams, docInfo, socket, Session, $location) {
-
-    $scope.isEditingDocument = false;
 
     $scope.fillPage = function() {
       $scope.docFound = true,

@@ -21,6 +21,12 @@
 				</tr>
 			</tbody>
 		</table>
+		<ul class="pagination">
+			<li class="arrow unavailable"><a href="" ng-click="back();">&laquo;</a></li>
+			<!-- <li class="current"><a ng-href="">1</a></li> -->
+			<li ng-repeat="set in sets" ng-class="set.isCurrent"><a href="" ng-click="displaySet(set);">{{set.index}}</a></li>
+			<li class="arrow unavailable"><a href="" ng-click="forward();">&raquo;</a></li>
+		</ul>
 	</div>
 </div>
 <div class="row">
