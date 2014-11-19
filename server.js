@@ -7,7 +7,6 @@ redis = require('redis');
 
 var client;
 if (process.env.REDISTOGO_URL) {
-	console.log(process.env.REDISTOGO_URL);
   var rtg   = require("url").parse(process.env.REDISTOGO_URL);
 	client = redis.createClient(rtg.port, rtg.hostname);
 	client.auth(rtg.auth.split(":")[1]);
@@ -26,7 +25,7 @@ io = require('socket.io').listen(server);
 
 key.loadFromPEM(keyString);
 
-server.listen(8000);
+server.listen(process.env.PORT || 8000);
 
 app.use(express.static(path.join(__dirname, 'app')));
 app.use(bodyParser.json());
