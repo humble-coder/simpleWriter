@@ -117,23 +117,42 @@ angular.module('simpleWriter.controllers', [])
   .controller('newDocCtrl', ['$scope', '$location', 'docInfo', 'socket', 'authService', 'Session', function($scope, $location, docInfo, socket, authService, Session) {
     if (!authService.isAuthenticated())
       $location.path('/login');
-    
-    $scope.isMakingDocument = false;
+    else {
+      $scope.isDuplicate = false;
 
-    $scope.newDocument = function() {
-      $scope.isMakingDocument = true;
+      $scope.docExists = function(title) {
+        if (title) {
+          socket.emit('getDocument', { owner: $scope.currentUser.name, docId: title.replace(/\s+/g, '') }, function(doc) {
+            if (doc) {
+              $scope.isDuplicate = true,
+              $scope.linkToDuplicate = $scope.currentUser.name + '/' + $scope.docTitle.replace(/\s+/g, '');
+            }
+            else {
+              if ($scope.isDuplicate && $scope.linkToDuplicate.length) {
+                $scope.isDuplicate = false,
+                $scope.linkToDuplicate = "";
+              }
+            }
+          });
+        }
+      }
+
+      $scope.$watch('docTitle', function(newValue, oldValue) { $scope.docExists(newValue) }, true);
+
+      $scope.newDocument = function() {
+        $scope.isMakingDocument = true;
+      }
+
+      $scope.saveDocument = function() {
+        docInfo.title = $scope.docTitle,
+        docInfo.body = $scope.docBody,
+        docInfo.owner = $scope.currentUser.name;
+
+        socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
+          $location.path('/' + docInfo.owner + '/' + docInfo.title.replace(/\s+/g, ''));
+        }); 
+      }
     }
-
-    $scope.saveDocument = function() {
-      docInfo.title = $scope.docTitle,
-      docInfo.body = $scope.docBody,
-      docInfo.owner = $scope.currentUser.name;
-
-      socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
-        $location.path('/' + docInfo.owner + '/' + docInfo.title.replace(/\s+/g, ''));
-      }); 
-    }
-
   }])
   .controller('userCtrl', ['$scope', '$routeParams', 'socket', function($scope, $routeParams, socket) {
     $scope.documents = [],
