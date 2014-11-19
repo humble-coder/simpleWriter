@@ -3,9 +3,18 @@ path = require('path'),
 express = require('express'),
 app = express(),
 server = http.createServer(app),
-redis = require('redis'),
-client = redis.createClient(),
-uuid = require('node-uuid'),
+redis = require('redis');
+
+var client;
+if (process.env.REDISTOGO_URL) {
+    var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+		client = redis.createClient(rtg.port, rtg.hostname);
+		client.auth(rtg.auth.split(":")[1]);
+} 
+else
+    client = redis.createClient();
+
+var uuid = require('node-uuid'),
 bodyParser = require('body-parser'),
 nodeRSA = require('node-rsa'),
 key = new nodeRSA(),
