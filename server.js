@@ -12,7 +12,7 @@ if (process.env.REDISTOGO_URL) {
 	client.auth(rtg.auth.split(":")[1]);
 } 
 else
-    client = redis.createClient();
+  client = redis.createClient();
 
 var uuid = require('node-uuid'),
 bodyParser = require('body-parser'),
