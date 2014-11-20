@@ -14,7 +14,7 @@ if (process.env.REDISTOGO_URL) {
 	client.auth(rtg.auth.split(":")[1]);
 	salt = process.env.SALT,
 	keyString = process.env.KEYSTRING;
-	key.loadFromPem(keyString);
+	key.loadFromPEM(keyString);
 } 
 else {
   client = redis.createClient(),
