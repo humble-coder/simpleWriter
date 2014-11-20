@@ -4,21 +4,21 @@ express = require('express'),
 app = express(),
 server = http.createServer(app),
 redis = require('redis'),
-nodeRSA = require('node-rsa');
+nodeRSA = require('node-rsa'),
+key = new nodeRSA();
 
-var client, keyString, salt, key;
+var client, keyString, salt;
 if (process.env.REDISTOGO_URL) {
-  var rtg = require("url").parse(process.env.REDISTOGO_URL);
+  var rtg = require("url").parse(process.env.REDISTOGO_URL),
 	client = redis.createClient(rtg.port, rtg.hostname);
 	client.auth(rtg.auth.split(":")[1]);
-	salt = process.env.SALT;
-	key = new nodeRSA({b: 512});
+	salt = process.env.SALT,
+	keyString = process.env.KEYSTRING;
 } 
 else {
-	key = new nodeRSA(),
   client = redis.createClient(),
   keyString = require('./keystring.js'),
-  salt = require('./salt.js');
+  salt = require('./salt.js'),
   key.loadFromPEM(keyString);
 }
 

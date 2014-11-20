@@ -166,16 +166,8 @@ angular.module('simpleWriter.controllers', [])
     var documentTitle, documentId, set, numSets, setNum, start;
     var setLength = 5;
 
-    // socket.emit('getDocuments', { user: $routeParams.username }, function(documents) {
-    //   for (var i = 0, arrayLength = documents.length; i < arrayLength; i++) {
-    //     documentTitle = documents[i],
-    //     documentId = documentTitle.replace(/\s+/g, '');
-    //     $scope.documents.push({ title: documentTitle, id: documentId });
-    //   }
-    // });
-
     socket.emit('getDocuments', { user: $routeParams.username }, function(documents) {
-      if (documents) {
+      if (documents.length) {
         numSets = Math.ceil((documents.length)/setLength);
         setNum = 1, start = 0;
         for (var j = 0; j < numSets; j++) {
