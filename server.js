@@ -3,30 +3,29 @@ path = require('path'),
 express = require('express'),
 app = express(),
 server = http.createServer(app),
-redis = require('redis');
+redis = require('redis'),
+nodeRSA = require('node-rsa');
 
-var client, keyString, salt;
+var client, keyString, salt, key;
 if (process.env.REDISTOGO_URL) {
   var rtg = require("url").parse(process.env.REDISTOGO_URL);
 	client = redis.createClient(rtg.port, rtg.hostname);
 	client.auth(rtg.auth.split(":")[1]);
-	keyString = process.env.KEYSTRING,
 	salt = process.env.SALT;
+	key = new nodeRSA({b: 512});
 } 
 else {
-  client = redis.createClient();
+	key = new nodeRSA(),
+  client = redis.createClient(),
   keyString = require('./keystring.js'),
   salt = require('./salt.js');
+  key.loadFromPEM(keyString);
 }
 
 var uuid = require('node-uuid'),
 bodyParser = require('body-parser'),
-nodeRSA = require('node-rsa'),
-key = new nodeRSA(),
 sessionRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
 io = require('socket.io').listen(server);
-
-key.loadFromPEM(keyString);
 
 server.listen(process.env.PORT || 8000);
 
