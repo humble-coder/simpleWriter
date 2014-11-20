@@ -175,27 +175,29 @@ angular.module('simpleWriter.controllers', [])
     // });
 
     socket.emit('getDocuments', { user: $routeParams.username }, function(documents) {
-      numSets = Math.ceil((documents.length)/setLength);
-      setNum = 1, start = 0;
-      for (var j = 0; j < numSets; j++) {
-        set = {};
-        set.index = j + 1,
-        set.documents = [];
-        for (var k = start; k < setNum * setLength; k++) {
-          if (documents[k]) {
-            documentTitle = documents[k],
-            documentId = documentTitle.replace(/\s+/g, '');
-            set.documents.push({ title: documents[k], id: documentId });
+      if (documents) {
+        numSets = Math.ceil((documents.length)/setLength);
+        setNum = 1, start = 0;
+        for (var j = 0; j < numSets; j++) {
+          set = {};
+          set.index = j + 1,
+          set.documents = [];
+          for (var k = start; k < setNum * setLength; k++) {
+            if (documents[k]) {
+              documentTitle = documents[k],
+              documentId = documentTitle.replace(/\s+/g, '');
+              set.documents.push({ title: documents[k], id: documentId });
+            }
+            else
+              break;
           }
-          else
-            break;
+          $scope.sets.push(set);
+          start += setLength;
+          setNum++;
         }
-        $scope.sets.push(set);
-        start += setLength;
-        setNum++;
+        $scope.sets[0].isCurrent = "current";
+        $scope.documents = $scope.sets[0].documents;
       }
-      $scope.sets[0].isCurrent = "current";
-      $scope.documents = $scope.sets[0].documents;
     });
 
     $scope.displaySet = function(set) {
