@@ -72,7 +72,7 @@ angular.module('simpleWriter.controllers', [])
 }])
   .controller('mainCtrl', ['$scope', '$location', 'docInfo', 'socket', 'Session', function($scope, $location, docInfo, socket, Session) {
   }])
-  .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', '$rootScope', 'authService', function($scope, registrationService, $location, AUTH_EVENTS, $rootScope, authService) {
+  .controller('registrationCtrl', ['$scope', 'registrationService', '$location', 'AUTH_EVENTS', 'authService', function($scope, registrationService, $location, AUTH_EVENTS, authService) {
     $scope.errorMessage = angular.element('#error-message');
     $scope.userMessage.text("");
 
@@ -85,9 +85,9 @@ angular.module('simpleWriter.controllers', [])
         $scope.errorMessage.text("");
         registrationService.createUser(userData).then(function(response) {
           if (response.error)
-            $rootScope.$broadcast(AUTH_EVENTS.registrationFailed, response);
+            $scope.$emit(AUTH_EVENTS.registrationFailed, response);
           else {
-            $rootScope.$broadcast(AUTH_EVENTS.registrationSuccess, response);
+            $scope.$emit(AUTH_EVENTS.registrationSuccess, response);
             $location.path('/login');
           }
         });
@@ -96,7 +96,7 @@ angular.module('simpleWriter.controllers', [])
         $scope.errorMessage.text("Password and password confirmation don't match.");
     }
   }])
-  .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'authService', '$location', 'Session', function($scope, $rootScope, AUTH_EVENTS, authService, $location, Session) {
+  .controller('loginCtrl', ['$scope', 'AUTH_EVENTS', 'authService', '$location', 'Session', function($scope, AUTH_EVENTS, authService, $location, Session) {
     $scope.credentials = {};
     $scope.userMessage.text("");
 
@@ -106,11 +106,11 @@ angular.module('simpleWriter.controllers', [])
     $scope.login = function(credentials) {
       authService.login(credentials).then(function(response) {
         if (response.name) {
-          $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, response);
+          $scope.$emit(AUTH_EVENTS.loginSuccess, response);
           $location.path('/' + response.name);
         }
         else
-          $rootScope.$broadcast(AUTH_EVENTS.loginFailed, response);
+          $scope.$emit(AUTH_EVENTS.loginFailed, response);
       });
     }
   }])
@@ -155,6 +155,7 @@ angular.module('simpleWriter.controllers', [])
     }
   }])
   .controller('userCtrl', ['$scope', '$routeParams', 'socket', function($scope, $routeParams, socket) {
+    $scope.newUserMessage = angular.element('#new-user-message'),
     $scope.documents = [],
     $scope.sets = [],
     $scope.user = $routeParams.username,
@@ -187,13 +188,19 @@ angular.module('simpleWriter.controllers', [])
           start += setLength;
           setNum++;
         }
-        $scope.sets[0].isCurrent = "current";
+        $scope.sets[0].isCurrent = "current",
+        $scope.currentSet = $scope.sets[0];
         $scope.documents = $scope.sets[0].documents;
       }
+      else
+        $scope.newUserMessage.text("No documents yet - click 'New Document' to get started!");
     });
 
     $scope.displaySet = function(set) {
-      
+      $scope.documents = set.documents,
+      $scope.currentSet.isCurrent = "",
+      set.isCurrent = "current",
+      $scope.currentSet = set;
     }
   }])
   .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', '$location', function($scope, $routeParams, docInfo, socket, Session, $location) {
