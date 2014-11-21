@@ -164,7 +164,7 @@ angular.module('simpleWriter.controllers', [])
     if ($scope.currentUser && ($scope.currentUser.name === $routeParams.username))
       $scope.ownsProfile = true;
 
-    var documentTitle, documentId, set, numSets, setNum, start;
+    var documentTitle, documentId, set, numSets, setNum, start, nextSet;
     var setLength = 5;
 
     socket.emit('getDocuments', { user: $routeParams.username }, function(documents) {
@@ -201,6 +201,16 @@ angular.module('simpleWriter.controllers', [])
       $scope.currentSet.isCurrent = "",
       set.isCurrent = "current",
       $scope.currentSet = set;
+    }
+
+    $scope.back = function(set) {
+      nextSet = $scope.sets[set.index - 2];
+      $scope.displaySet(previousSet);
+    }
+
+    $scope.forward = function(set) {
+      nextSet = $scope.sets[set.index];
+      $scope.displaySet(nextSet);
     }
   }])
   .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', '$location', function($scope, $routeParams, docInfo, socket, Session, $location) {
