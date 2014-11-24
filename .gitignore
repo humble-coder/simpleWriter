@@ -1,2 +1,4 @@
 salt.js
 keystring.js
+cert.pem
+key.pem
