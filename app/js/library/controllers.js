@@ -49,6 +49,10 @@ angular.module('simpleWriter.controllers', [])
     });
   }
 
+  $scope.searchUsers = function(userQuery) {
+    $location.path('/search/users/' + userQuery);
+  }
+
   $scope.$on('auth-login-success', function(event, user) {
     if (authService.isAuthenticated()) {
       $scope.currentUser = user;
@@ -245,7 +249,7 @@ angular.module('simpleWriter.controllers', [])
       $scope.users.splice(index, 1);
     });
 
-    socket.on('displaySearch', function(results) {
+    socket.on('displayCollaborators', function(results) {
       if (results.length)
         $scope.users = results;
       else
@@ -257,7 +261,7 @@ angular.module('simpleWriter.controllers', [])
     }
 
     $scope.searchUsers = function() {
-      socket.emit('searchUsers', { query: $scope.query, user: $scope.currentUser.name, docId: $routeParams.docId, owner: $scope.docOwner, collaborators: $scope.collaborators, sessionId: Session.id });
+      socket.emit('searchCollaborators', { query: $scope.query, user: $scope.currentUser.name, docId: $routeParams.docId, owner: $scope.docOwner, collaborators: $scope.collaborators, sessionId: Session.id });
     }
 
   }]).controller('editDocCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', '$location', function($scope, $routeParams, docInfo, socket, Session, $location) {
@@ -337,4 +341,64 @@ angular.module('simpleWriter.controllers', [])
         });
       }
     }
-  }]);
+  }]).controller('searchUsersCtrl', ['$scope', '$routeParams', 'socket', function($scope, $routeParams, socket) {
+
+    $scope.users = [],
+    $scope.results = [],
+    $scope.sets = [],
+    $scope.query = $routeParams.query;
+
+    $scope.displayResults = function(users) {
+      var set, numSets, setNum, start, nextSet;
+      var setLength = 10;
+      if (users.length) {
+        numSets = Math.ceil((users.length)/setLength);
+        setNum = 1, start = 0;
+        for (var j = 0; j < numSets; j++) {
+          set = {};
+          set.index = j + 1,
+          set.results = [];
+          for (var k = start; k < setNum * setLength; k++) {
+            if (users[k])
+              set.results.push(users[k]);
+            else
+              break;
+          }
+          $scope.sets.push(set);
+          start += setLength;
+          setNum++;
+        }
+        $scope.sets[0].isCurrent = "current",
+        $scope.currentSet = $scope.sets[0],
+        $scope.results = $scope.currentSet.results;
+      }
+    }
+
+    socket.emit('searchUsers', { query: $scope.query }, function(response) {
+      if (response.done) {
+        $scope.users.push(response.value);
+        $scope.displayResults($scope.users);
+      }
+      else if (response.value === "No results")
+        $scope.noResultsMessage = response.value;
+      else
+        $scope.users.push(response);
+    });
+
+    $scope.displaySet = function(set) {
+      $scope.results = set.results,
+      $scope.currentSet.isCurrent = "",
+      set.isCurrent = "current",
+      $scope.currentSet = set;
+    }
+
+    $scope.back = function(set) {
+      nextSet = $scope.sets[set.index - 2];
+      $scope.displaySet(previousSet);
+    }
+
+    $scope.forward = function(set) {
+      nextSet = $scope.sets[set.index];
+      $scope.displaySet(nextSet);
+    }
+}]);

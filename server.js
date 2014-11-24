@@ -208,7 +208,7 @@ io.sockets.on('connection', function(socket) {
 		}
 	});
 
-	socket.on('searchUsers', function(data) {
+	socket.on('searchCollaborators', function(data) {
 		if (sessionRegex.test(data.sessionId)) {
 			var docChannel = data.owner + "-" + data.docId;
 			client.smembers("users:" + data.query + ":index", function(err, ids) {
@@ -218,13 +218,13 @@ io.sockets.on('connection', function(socket) {
 						client.hgetall("users:" + ids[i], function(err, user) {
 							if ((user.name != data.user) && (data.collaborators.indexOf(user.name) == -1)) {
 								results.push(user.name);
-								io.to(docChannel).emit('displaySearch', results);
+								io.to(docChannel).emit('displayCollaborators', results);
 							}
 						});
 					}
 				}
 				else
-					io.to(docChannel).emit('displaySearch', results);
+					io.to(docChannel).emit('displayCollaborators', results);
 			});
 		}
 	});
@@ -242,6 +242,23 @@ io.sockets.on('connection', function(socket) {
 					io.to(docChannel).emit('messageAdded', data.message);
 				});
 			}
+		});
+	});
+
+	socket.on('searchUsers', function(data, fn) {
+		client.smembers("users:" + data.query + ":index", function(err, ids) {
+			if (ids.length >= 1) {
+				for (var i = 0, length = ids.length; i < length; i++) {
+					client.hgetall("users:" + ids[i], function(err, user) {
+						if (i < length - 1)
+							fn(user.name);
+						else
+							fn({done: true, value: user.name});
+					});
+				}
+			}
+			else
+				fn({value: "No Results"});
 		});
 	});
 });
