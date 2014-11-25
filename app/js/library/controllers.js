@@ -209,7 +209,7 @@ angular.module('simpleWriter.controllers', [])
 
     $scope.back = function(set) {
       nextSet = $scope.sets[set.index - 2];
-      $scope.displaySet(previousSet);
+      $scope.displaySet(nextSet);
     }
 
     $scope.forward = function(set) {
@@ -346,7 +346,8 @@ angular.module('simpleWriter.controllers', [])
     $scope.users = [],
     $scope.results = [],
     $scope.sets = [],
-    $scope.query = $routeParams.query;
+    $scope.query = $routeParams.query,
+    $scope.noResultsMessage = angular.element('#no-results-message');
 
     $scope.displayResults = function(users) {
       var set, numSets, setNum, start, nextSet;
@@ -379,8 +380,8 @@ angular.module('simpleWriter.controllers', [])
         $scope.users.push(response.value);
         $scope.displayResults($scope.users);
       }
-      else if (response.value === "No results")
-        $scope.noResultsMessage = response.value;
+      else if (response.value === "No Results")
+        $scope.noResultsMessage.text(response.value);
       else
         $scope.users.push(response);
     });
@@ -394,7 +395,7 @@ angular.module('simpleWriter.controllers', [])
 
     $scope.back = function(set) {
       nextSet = $scope.sets[set.index - 2];
-      $scope.displaySet(previousSet);
+      $scope.displaySet(nextSet);
     }
 
     $scope.forward = function(set) {
