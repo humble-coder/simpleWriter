@@ -20,5 +20,6 @@ config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/:username/:docId', {templateUrl: './partials/document.html', controller: 'documentCtrl'});
   $routeProvider.when('/:username/:docId/edit', {templateUrl: './partials/edit-document.html', controller: 'editDocCtrl'});
   $routeProvider.when('/search/users/:query', {templateUrl: './partials/search-users.html', controller: 'searchUsersCtrl'});
+  $routeProvider.when('/search/documents/:query', {templateUrl: './partials/search-docs.html', controller: 'searchDocsCtrl'});
   $routeProvider.otherwise({redirectTo: '/'});
 }]);

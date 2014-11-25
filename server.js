@@ -135,6 +135,8 @@ io.sockets.on('connection', function(socket) {
 				if (reply1) {
 					client.hmset(data.owner + "-" + docId, "title", data.title, "body", data.body, "owner", data.owner, "id", docId, function(err2, reply2) {
 						if (reply2) {
+							for (var index = 0, length = docId.length; index < length - 1; index++)
+								client.sadd("documents-" + docId.substring(0, index + 1), data.owner + "-" + docId);
 							socket.join(data.owner + "-" + docId);
 							fn();
 						}
@@ -259,6 +261,27 @@ io.sockets.on('connection', function(socket) {
 			}
 			else
 				fn({value: "No Results"});
+		});
+	});
+
+	socket.on('searchDocs', function(data, fn) {
+		client.smembers("documents-" + data.query, function(err, ids) {
+			if (ids.length >= 1) {
+				var owner, docId, id;
+				for (var i = 0, length = ids.length; i < length; i++) {
+					id = ids[i];
+					user = id.substring(0, id.indexOf("-")),
+					docId = id.substring(id.indexOf("-") + 1, id.length);
+					client.hmget(user + "-" + docId, "title", "id", function(err, info) {
+						if (i < length - 1)
+							fn({user: user, title: info[0], id: info[1]});
+						else
+							fn({done: true, user: user, title: info[0], id: info[1]});
+					});
+				}
+			}
+			else
+				fn(null);
 		});
 	});
 });

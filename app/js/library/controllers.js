@@ -53,6 +53,11 @@ angular.module('simpleWriter.controllers', [])
     $location.path('/search/users/' + userQuery);
   }
 
+  $scope.searchDocs = function(docQuery) {
+    docQuery = docQuery.replace(/\s+/g, '');
+    $location.path('/search/documents/' + docQuery);
+  }
+
   $scope.$on('auth-login-success', function(event, user) {
     if (authService.isAuthenticated()) {
       $scope.currentUser = user;
@@ -384,6 +389,67 @@ angular.module('simpleWriter.controllers', [])
         $scope.noResultsMessage.text(response.value);
       else
         $scope.users.push(response);
+    });
+
+    $scope.displaySet = function(set) {
+      $scope.results = set.results,
+      $scope.currentSet.isCurrent = "",
+      set.isCurrent = "current",
+      $scope.currentSet = set;
+    }
+
+    $scope.back = function(set) {
+      nextSet = $scope.sets[set.index - 2];
+      $scope.displaySet(nextSet);
+    }
+
+    $scope.forward = function(set) {
+      nextSet = $scope.sets[set.index];
+      $scope.displaySet(nextSet);
+    }
+}]).controller('searchDocsCtrl', ['$scope', '$routeParams', 'socket', function($scope, $routeParams, socket) {
+
+    $scope.docs = [],
+    $scope.results = [],
+    $scope.sets = [],
+    $scope.query = $routeParams.query,
+    $scope.noResultsMessage = angular.element('#no-results-message');
+
+    $scope.displayResults = function(docs) {
+      var set, numSets, setNum, start, nextSet;
+      var setLength = 10;
+      if (docs.length) {
+        numSets = Math.ceil((docs.length)/setLength);
+        setNum = 1, start = 0;
+        for (var j = 0; j < numSets; j++) {
+          set = {};
+          set.index = j + 1,
+          set.results = [];
+          for (var k = start; k < setNum * setLength; k++) {
+            if (docs[k])
+              set.results.push(docs[k]);
+            else
+              break;
+          }
+          $scope.sets.push(set);
+          start += setLength;
+          setNum++;
+        }
+        $scope.sets[0].isCurrent = "current",
+        $scope.currentSet = $scope.sets[0],
+        $scope.results = $scope.currentSet.results;
+      }
+    }
+
+    socket.emit('searchDocs', { query: $scope.query }, function(response) {
+      if (response && response.done) {
+        $scope.docs.push(response);
+        $scope.displayResults($scope.docs);
+      }
+      else if (response && response.title)
+        $scope.docs.push(response);
+      else
+        $scope.noResultsMessage.text("No Results");
     });
 
     $scope.displaySet = function(set) {

@@ -1,0 +1,22 @@
+<div class="row">
+	<div class="small-12 columns">
+		<h1>Results for doc query {{query}}</h1>
+	</div>
+</div>
+<div class="row" ng-show="sets.length">
+	<div class="small-12 columns">
+		<ul>
+			<li ng-repeat="result in results"><a ng-href="#/{{result.user}}/{{result.id}}">{{result.title}}</a></li>
+		</ul>
+		<ul class="pagination" ng-show="sets.length > 1">
+			<li class="arrow" id="back-arrow"><a href="" ng-click="back(currentSet);">&laquo;</a></li>
+			<li ng-repeat="set in sets" ng-class="set.isCurrent"><a href="" ng-click="displaySet(set);">{{set.index}}</a></li>
+			<li class="arrow" id="forward-arrow"><a href="" ng-click="forward(currentSet);">&raquo;</a></li>
+		</ul>
+	</div>
+</div>
+<div class="row">
+	<div class="small-12 columns">
+		<p class="text-left" id="no-results-message"></p>
+	</div>
+</div>
