@@ -54,7 +54,7 @@ angular.module('simpleWriter.controllers', [])
   }
 
   $scope.searchDocs = function(docQuery) {
-    docQuery = docQuery.replace(/\s+/g, '');
+    docQuery = docQuery.replace(/\s+/g, '').toLowerCase();
     $location.path('/search/documents/' + docQuery);
   }
 
@@ -283,6 +283,7 @@ angular.module('simpleWriter.controllers', [])
         $location.path('/' + $routeParams.username + '/' + $routeParams.docId);
       else {
         $scope.docOwner = docInfo.owner,
+        $scope.docId = docInfo.id,
         $scope.isOwner = $scope.docOwner === $scope.currentUser.name,
         $scope.docTitleArea = angular.element('#doc-title'),
         $scope.docBodyArea = angular.element('#doc-body'),
@@ -291,8 +292,8 @@ angular.module('simpleWriter.controllers', [])
         $scope.docTitleDisplay.text(docInfo.title),
         $scope.docTitleArea.val(docInfo.title),
         $scope.docBodyArea.val(docInfo.body),
-        $scope.docBodyArea.on('keyup', $scope.updateDocument),
-        $scope.docTitleArea.on('keyup', $scope.updateDocument),
+        $scope.docBodyArea.on('keydown', $scope.updateDocument),
+        $scope.docTitleArea.on('keydown', $scope.updateDocument),
         $scope.lastMessageTime = 0,
         $scope.messages = docInfo.messages || [];
       }

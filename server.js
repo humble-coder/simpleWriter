@@ -136,7 +136,7 @@ io.sockets.on('connection', function(socket) {
 					client.hmset(data.owner + "-" + docId, "title", data.title, "body", data.body, "owner", data.owner, "id", docId, function(err2, reply2) {
 						if (reply2) {
 							for (var index = 0, length = docId.length; index < length - 1; index++)
-								client.sadd("documents-" + docId.substring(0, index + 1), data.owner + "-" + docId);
+								client.sadd("documents-" + docId.substring(0, index + 1).toLowerCase(), data.owner + "-" + docId);
 							socket.join(data.owner + "-" + docId);
 							fn();
 						}
