@@ -127,13 +127,15 @@ angular.module('simpleWriter.controllers', [])
     if (!authService.isAuthenticated())
       $location.path('/login');
     else {
-      $scope.isDuplicate = false;
+      $scope.isDuplicate = false,
+      $scope.isValid = false;
 
       $scope.docExists = function(title) {
-        if (title) {
+        if (title.length) {
           socket.emit('getDocument', { owner: $scope.currentUser.name, docId: title.replace(/\s+/g, '') }, function(doc) {
             if (doc) {
               $scope.isDuplicate = true,
+              $scope.isValid = false,
               $scope.linkToDuplicate = $scope.currentUser.name + '/' + $scope.docTitle.replace(/\s+/g, '');
             }
             else {
@@ -141,9 +143,12 @@ angular.module('simpleWriter.controllers', [])
                 $scope.isDuplicate = false,
                 $scope.linkToDuplicate = "";
               }
+              $scope.isValid = true;
             }
           });
         }
+        else
+          $scope.isValid = false;
       }
 
       $scope.$watch('docTitle', function(newValue, oldValue) { $scope.docExists(newValue) }, true);

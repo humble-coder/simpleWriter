@@ -5,13 +5,16 @@
 
 <form name="new-document-form" ng-submit="saveDocument();">
 	<div class="row">
-		<div class="large-6 medium-8 small-10 columns end">
+		<div class="large-6 medium-8 small-8 columns">
 		  <label for="doc-title">Document Title</label>
 		  <input type="text" id="doc-title" ng-model="docTitle">
-		  <div data-alert class="alert-box warning round" id="alert" ng-show="isDuplicate">
+		  <div data-alert class="alert-box warning round" id="alert-one" ng-show="isDuplicate">
   			You already have a document with this title; head to it to make edits: <a class="close" ng-href="#/{{linkToDuplicate}}">Go</a>
 			</div>
 		</div>
+		<div class="small-4 columns">
+  		<input class="button" type="submit" value="Save" ng-show="isValid">
+  	</div>
   </div>
   <div class="row">
   	<div class="small-10 columns end">
@@ -19,9 +22,4 @@
 		  <textarea id="doc-body" rows="30" ng-model="docBody"></textarea>
 		</div>
 	</div>
-	<div class="row">
-		<div class="small-4 columns end">
-  		<input class="button" type="submit" value="Save" ng-hide="isDuplicate">
-  	</div>
-  </div>
 </form>
