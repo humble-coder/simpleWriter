@@ -128,7 +128,8 @@ angular.module('simpleWriter.controllers', [])
       $location.path('/login');
     else {
       $scope.isDuplicate = false,
-      $scope.isValid = false;
+      $scope.isValid = false,
+      $scope.instance = new Date().toUTCString();
 
       $scope.docExists = function(title) {
         if (title.length) {
@@ -152,19 +153,28 @@ angular.module('simpleWriter.controllers', [])
       }
 
       $scope.$watch('docTitle', function(newValue, oldValue) { $scope.docExists(newValue) }, true);
+      $scope.$watch('docBody', function(newValue, oldValue) { $scope.protectDocument(newValue) }, true);
 
       $scope.newDocument = function() {
         $scope.isMakingDocument = true;
       }
 
       $scope.saveDocument = function() {
-        docInfo.title = $scope.docTitle,
-        docInfo.body = $scope.docBody || "",
-        docInfo.owner = $scope.currentUser.name;
+        if ($scope.isValid) {
+          docInfo.title = $scope.docTitle,
+          docInfo.body = $scope.docBody || "",
+          docInfo.owner = $scope.currentUser.name,
+          docInfo.id = docInfo.title.replace(/\s+/g, '');
 
-        socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
-          $location.path('/' + docInfo.owner + '/' + docInfo.title.replace(/\s+/g, ''));
-        }); 
+          socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
+            $location.path('/' + docInfo.owner + '/' + docInfo.id);
+          }); 
+        }
+      }
+
+      $scope.protectDocument = function(docBody) {
+        if ($scope.isValid)
+          socket.emit('protectDocument', { title: docInfo.title, body: docInfo.body, sessionId: Session.id, instance: $scope.instance, owner: $scope.currentUser.name });
       }
     }
   }])
@@ -181,8 +191,9 @@ angular.module('simpleWriter.controllers', [])
     var documentTitle, documentId, set, numSets, setNum, start, nextSet;
     var setLength = 5;
 
-    socket.emit('getDocuments', { user: $routeParams.username }, function(documents) {
-      if (documents.length) {
+    socket.emit('getDocuments', { owner: $routeParams.username, user: $scope.currentUser.name }, function(response) {
+      if (response && response.documents.length) {
+        var documents = response.documents;
         numSets = Math.ceil((documents.length)/setLength);
         setNum = 1, start = 0;
         for (var j = 0; j < numSets; j++) {
@@ -205,6 +216,9 @@ angular.module('simpleWriter.controllers', [])
         $scope.sets[0].isCurrent = "current",
         $scope.currentSet = $scope.sets[0];
         $scope.documents = $scope.sets[0].documents;
+
+        if (response.protectedDoc)
+
       }
       else
         $scope.newUserMessage.text("No documents yet - click 'New Document' to get started!");

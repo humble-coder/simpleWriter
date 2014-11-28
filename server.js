@@ -138,10 +138,18 @@ io.sockets.on('connection', function(socket) {
 							for (var index = 0, length = docId.length; index < length - 1; index++)
 								client.sadd("documents-" + docId.substring(0, index + 1).toLowerCase(), data.owner + "-" + docId);
 							socket.join(data.owner + "-" + docId);
+							client.del(data.owner + "-protect");
 							fn();
 						}
 					});
 				}
+			});
+		}
+	});
+
+	socket.on('protectDocument', function(data) {
+		if (sessionRegex.test(data.sessionId)) {
+			client.hmset(data.owner + "-protect", "title", data.title, "body", data.body, "instance", data.instance, function(err, reply) {
 			});
 		}
 	});
@@ -172,9 +180,17 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('getDocuments', function(data, fn) {
-		client.smembers(data.user + "-documents", function(err, documents) {
-			if (documents)
-				fn(documents);
+		var response = {};
+		client.smembers(data.owner + "-documents", function(err, documents) {
+			if (documents) {
+				response.documents = documents;
+				if (data.owner === data.user) {
+					client.hgetall(data.owner + "-protect", function(err, doc) {
+						if (doc) response.protectedDoc = doc;
+						fn(response);
+					});
+				}
+			}
 		});
 	});
 
