@@ -159,7 +159,7 @@ angular.module('simpleWriter.controllers', [])
 
       $scope.saveDocument = function() {
         docInfo.title = $scope.docTitle,
-        docInfo.body = $scope.docBody,
+        docInfo.body = $scope.docBody || "",
         docInfo.owner = $scope.currentUser.name;
 
         socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
