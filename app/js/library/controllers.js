@@ -129,10 +129,22 @@ angular.module('simpleWriter.controllers', [])
     else {
       $scope.isDuplicate = false,
       $scope.isValid = false,
-      $scope.instance = new Date().toUTCString();
+      $scope.instance = new Date().toUTCString(),
+      $scope.docTitleElement = angular.element('#doc-title'),
+      $scope.docBodyElement = angular.element('#doc-body');
+
+      socket.emit('recoverDoc', { owner: $scope.currentUser.name, sessionId: Session.id }, function(doc) {
+        if (doc && doc.title) {
+          $scope.docTitleElement.val(doc.title),
+          $scope.docBodyElement.val(doc.body),
+          $scope.docTitle = doc.title,
+          $scope.docBody = doc.body,
+          $scope.isValid = true;
+        }
+      });
 
       $scope.docExists = function(title) {
-        if (title.length) {
+        if (title && title.length) {
           socket.emit('getDocument', { owner: $scope.currentUser.name, docId: title.replace(/\s+/g, '') }, function(doc) {
             if (doc) {
               $scope.isDuplicate = true,
@@ -174,7 +186,7 @@ angular.module('simpleWriter.controllers', [])
 
       $scope.protectDocument = function(docBody) {
         if ($scope.isValid)
-          socket.emit('protectDocument', { title: docInfo.title, body: docInfo.body, sessionId: Session.id, instance: $scope.instance, owner: $scope.currentUser.name });
+          socket.emit('protectDocument', { title: $scope.docTitle, body: $scope.docBody, sessionId: Session.id, instance: $scope.instance, owner: $scope.currentUser.name });
       }
     }
   }])
@@ -214,11 +226,8 @@ angular.module('simpleWriter.controllers', [])
           setNum++;
         }
         $scope.sets[0].isCurrent = "current",
-        $scope.currentSet = $scope.sets[0];
+        $scope.currentSet = $scope.sets[0],
         $scope.documents = $scope.sets[0].documents;
-
-        if (response.protectedDoc)
-
       }
       else
         $scope.newUserMessage.text("No documents yet - click 'New Document' to get started!");

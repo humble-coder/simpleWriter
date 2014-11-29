@@ -154,6 +154,14 @@ io.sockets.on('connection', function(socket) {
 		}
 	});
 
+	socket.on('recoverDoc', function(data, fn) {
+		if (sessionRegex.test(data.sessionId)) {
+			client.hgetall(data.owner + "-protect", function(err, doc) {
+				fn(doc);
+			});
+		}
+	});
+
 	socket.on('getDocument', function(data, fn) {
 		client.hgetall(data.owner, function(err1, info) {
 			if (info) {
@@ -186,7 +194,8 @@ io.sockets.on('connection', function(socket) {
 				response.documents = documents;
 				if (data.owner === data.user) {
 					client.hgetall(data.owner + "-protect", function(err, doc) {
-						if (doc) response.protectedDoc = doc;
+						if (doc) 
+							response.protectedDoc = doc;
 						fn(response);
 					});
 				}

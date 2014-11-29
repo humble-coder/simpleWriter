@@ -15,5 +15,5 @@ angular.module('simpleWriter.services', []).service('docInfo', function() {
     this.userId = null;
   };
   return this;
-})
+});
 
