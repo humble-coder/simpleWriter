@@ -233,6 +233,11 @@ angular.module('simpleWriter.controllers', [])
         $scope.newUserMessage.text("No documents yet - click 'New Document' to get started!");
     });
 
+    socket.emit('getImage', { user: $routeParams.username }, function(image) {
+      if (image)
+        $scope.userPic = image;
+    });
+
     $scope.displaySet = function(set) {
       $scope.documents = set.documents,
       $scope.currentSet.isCurrent = "",

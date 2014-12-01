@@ -127,6 +127,17 @@ app.post('/new-user', function(req, res) {
 	}
 });
 
+app.post('/image-upload', function(req, res) {
+	var image = req.body.image,
+	user = req.body.user;
+	client.hset(user + "-image", "image", image, function(err, reply) {
+		if (err)
+			res.status(500).json({error: "Unable to upload image: " + err + ". Please try again."});
+		else
+			res.status(200).json({OK: true, image: image});
+	});
+});
+
 io.sockets.on('connection', function(socket) {
 	socket.on('saveDocument', function(data, fn) {
 		var docId = data.title.replace(/\s+/g, '');
@@ -307,6 +318,13 @@ io.sockets.on('connection', function(socket) {
 			}
 			else
 				fn(null);
+		});
+	});
+
+	socket.on('getImage', function(data, fn) {
+		client.hget(data.user + "-image", "image", function(err, image) {
+			if (image)
+				fn(image);
 		});
 	});
 });
