@@ -11,8 +11,9 @@ angular.module('simpleWriter.directives', []).directive('imageUpload', ['$http',
 			reader = new FileReader();
 			reader.onload = function(e) { $http.post('/image-upload', {image: e.target.result, user: user }).then(function(res) {
 				if (res.status === 200) {
-					scope.userPic = res.data.image,
-					element.addClass("hide");
+					console.log("In!");
+					scope.userImage.attr("src", res.data.image);
+					scope.clearImageButton.removeClass("hide");
 				}
 			})};
 			reader.readAsDataURL(image);

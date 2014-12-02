@@ -327,5 +327,11 @@ io.sockets.on('connection', function(socket) {
 				fn(image);
 		});
 	});
+
+	socket.on('removeImage', function(data, fn) {
+		client.hdel(data.user + "-image", "image", function(err, response) {
+			fn(response);
+		});
+	});
 });
 

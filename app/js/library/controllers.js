@@ -192,13 +192,18 @@ angular.module('simpleWriter.controllers', [])
   }])
   .controller('userCtrl', ['$scope', '$routeParams', 'socket', function($scope, $routeParams, socket) {
     $scope.newUserMessage = angular.element('#new-user-message'),
+    $scope.newImageButton = angular.element('#new-image-button'),
+    $scope.clearImageButton = angular.element('#clear-image-button'),
+    $scope.userImage = angular.element('#user-image'),
     $scope.documents = [],
     $scope.sets = [],
     $scope.user = $routeParams.username,
     $scope.ownsProfile = false;
 
-    if ($scope.currentUser && ($scope.currentUser.name === $routeParams.username))
-      $scope.ownsProfile = true;
+    if ($scope.currentUser && ($scope.currentUser.name === $routeParams.username)) {
+      $scope.ownsProfile = true,
+      $scope.newImageButton.removeClass("hide");
+    }
 
     var documentTitle, documentId, set, numSets, setNum, start, nextSet;
     var setLength = 5;
@@ -235,7 +240,7 @@ angular.module('simpleWriter.controllers', [])
 
     socket.emit('getImage', { user: $routeParams.username }, function(image) {
       if (image)
-        $scope.userPic = image;
+        $scope.userImage.attr("src", image);
     });
 
     $scope.displaySet = function(set) {
@@ -253,6 +258,18 @@ angular.module('simpleWriter.controllers', [])
     $scope.forward = function(set) {
       nextSet = $scope.sets[set.index];
       $scope.displaySet(nextSet);
+    }
+
+    $scope.clearImage = function() {
+      if ($scope.ownsProfile) {
+        socket.emit('removeImage', { user: $routeParams.username }, function(response) {
+          if (response) {
+            $scope.userImage.attr("src", ""),
+            $scope.newImageButton.val(""),
+            $scope.clearImageButton.addClass("hide");
+          }
+        });
+      }
     }
   }])
   .controller('documentCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', '$location', function($scope, $routeParams, docInfo, socket, Session, $location) {
