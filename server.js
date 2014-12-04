@@ -63,7 +63,7 @@ app.post('/logout', function(req, res) {
 
 app.post('/login', function(req, res) {
 	var userInfo = req.body.data;
-	client.hgetall(userInfo.userName, function(err, obj) {
+	client.hgetall(userInfo.userName.toLowerCase(), function(err, obj) {
 		if (obj) {
 			var userId = obj.id,
 			userObject = obj;
@@ -94,23 +94,24 @@ app.post('/new-user', function(req, res) {
 	if (userInfo.userPassword != userInfo.userPasswordConfirmation)
 		res.json({error: "Password and password confirmation don't match."});
 	else {
-		client.hgetall(userInfo.userName, function(err, user) {
-			if (!user) {
-				client.hgetall(userInfo.userEmail, function(err, email) {
-					if(!email) {
+		var userName = userInfo.userName,
+		lowercaseName = userName.toLowerCase(),
+		email = userInfo.userEmail;
+		client.hgetall(lowercaseName, function(err, userFound) {
+			if (!userFound) {
+				client.hgetall(email, function(err, emailFound) {
+					if(!emailFound) {
 						client.incr("userId", function(err, reply) {
 							var userId = reply,
 							saltLength = salt.length,
 							stringToEncrypt = salt.substring(0, saltLength/2) + userInfo.userPassword + salt.substring(saltLength/2, saltLength),
-							name = userInfo.userName,
 							password = key.encrypt(stringToEncrypt, 'base64');
 
-							client.hmset("users:" + userId, "name", userInfo.userName, "email", userInfo.userEmail, "password", password, "id", userId, function(err, reply2) {
-								client.hmset(userInfo.userName, "email", userInfo.userEmail, "id", userId, function(err, reply3) {
-									client.hmset(userInfo.userEmail, "name", userInfo.userName, "id", userId, function(err, reply4) {
-										for (var index = 0, nameLength = name.length; index < nameLength - 1; index++) {
-											client.sadd("users:" + name.substring(0, index + 2) + ":index", userId);
-										}
+							client.hmset("users:" + userId, "name", userName, "email", email, "password", password, "id", userId, function(err, reply2) {
+								client.hmset(lowercaseName, "email", email, "id", userId, function(err, reply3) {
+									client.hmset(email, "name", userName, "id", userId, function(err, reply4) {
+										for (var index = 0, nameLength = lowercaseName.length; index < nameLength - 1; index++)
+											client.sadd("users:" + lowercaseName.substring(0, index + 1) + ":index", userId);
 										res.json({userName: userInfo.userName});
 									});
 								});
@@ -284,7 +285,7 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('searchUsers', function(data, fn) {
-		client.smembers("users:" + data.query + ":index", function(err, ids) {
+		client.smembers("users:" + data.query.toLowerCase() + ":index", function(err, ids) {
 			if (ids.length >= 1) {
 				for (var i = 0, length = ids.length; i < length; i++) {
 					client.hgetall("users:" + ids[i], function(err, user) {

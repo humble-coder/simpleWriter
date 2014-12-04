@@ -149,7 +149,7 @@ angular.module('simpleWriter.controllers', [])
             if (doc) {
               $scope.isDuplicate = true,
               $scope.isValid = false,
-              $scope.linkToDuplicate = $scope.currentUser.name + '/' + $scope.docTitle.replace(/\s+/g, '');
+              $scope.linkToDuplicate = $scope.currentUser.name + '/documents/' + $scope.docTitle.replace(/\s+/g, '');
             }
             else {
               if ($scope.isDuplicate && $scope.linkToDuplicate.length) {
@@ -179,7 +179,7 @@ angular.module('simpleWriter.controllers', [])
           docInfo.id = docInfo.title.replace(/\s+/g, '');
 
           socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
-            $location.path('/' + docInfo.owner + '/' + docInfo.id);
+            $location.path('/' + docInfo.owner + '/documents/' + docInfo.id);
           }); 
         }
       }
