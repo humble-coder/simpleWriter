@@ -519,4 +519,14 @@ angular.module('simpleWriter.controllers', [])
       nextSet = $scope.sets[set.index];
       $scope.displaySet(nextSet);
     }
+}]).controller('messagesCtrl', ['$scope', '$routeParams', '$location', 'socket', function($scope, $routeParams, $location, socket) {
+  if ($scope.currentUser.name !== $routeParams.username)
+    $location.path('/');
+  else {
+    $scope.messages = [];
+    socket.emit('getMessages', { user: $routeParams.username }, function(messages) {
+      if (messages.length)
+        $scope.messages = messages;
+    });
+  }
 }]);

@@ -1,0 +1,15 @@
+<div class="row">
+	<div class="small-12 columns">
+		<h2>Your Messages</h2>
+	</div>
+</div>
+<div class="row" ng-repeat="message in messages">
+	<div class="small-12 columns">
+		<dl class="accordion" data-accordion>
+			<dd class="accordion-navigation">
+				<a ng-href="{{message.id}}"><b>Sender:</b> {{message.sender}} <b>Subject:</b> {{message.subject}}</a>
+				<div ng-attr-id="{{message.id}}" class="content">{{message.body}}</div>
+			</dd>
+		</dl>
+	</div>
+</div>
