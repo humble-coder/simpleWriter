@@ -285,20 +285,30 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('searchUsers', function(data, fn) {
-		client.smembers("users:" + data.query.toLowerCase() + ":index", function(err, ids) {
-			if (ids.length >= 1) {
-				for (var i = 0, length = ids.length; i < length; i++) {
-					client.hgetall("users:" + ids[i], function(err, user) {
-						if (i < length - 1)
-							fn(user.name);
-						else
-							fn({done: true, value: user.name});
-					});
+		if (data.justChecking) {
+			client.hgetall(data.query, function(err, user) {
+				if (!user)
+					res.json({userNotFound: true});
+				else
+					res.json({userNotFound: false});
+			});
+		}
+		else {
+			client.smembers("users:" + data.query.toLowerCase() + ":index", function(err, ids) {
+				if (ids.length >= 1) {
+					for (var i = 0, length = ids.length; i < length; i++) {
+						client.hgetall("users:" + ids[i], function(err, user) {
+							if (i < length - 1)
+								fn(user.name);
+							else
+								fn({done: true, value: user.name});
+						});
+					}
 				}
-			}
-			else
-				fn({value: "No Results"});
-		});
+				else
+					fn({value: "No Results"});
+			});
+		}
 	});
 
 	socket.on('searchDocs', function(data, fn) {
@@ -334,5 +344,20 @@ io.sockets.on('connection', function(socket) {
 			fn(response);
 		});
 	});
+
+	socket.on('getMessages', function(data, fn) {
+		var user = data.user;
+		client.smembers(user + "-messages", function(err, ids) {
+			if (ids.length >= 1) {
+				var id;
+				for (var i = 0, length = ids.length; i < length; i++) {
+					id = ids[i];
+					client.hgetall(user + ":" + "message:" + id, function(err, message) {
+						fn(message);
+					});
+				}
+			}
+		})
+	})
 });
 

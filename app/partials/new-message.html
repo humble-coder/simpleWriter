@@ -9,13 +9,19 @@
 		  <label for="message-receiver">To</label>
 		  <input type="text" id="message-receiver" ng-model="messageReceiver">
 		  <div data-alert class="alert-box warning round" id="alert-one" ng-show="noReceiverFound">
-  			There is no user named {{messageReceiver}} <a class="close">Go</a>
+  			There is no user named {{messageReceiver}} <a class="close">&times;</a>
+			</div>
+			<div data-alert class="alert-box warning round" id="alert-two" ng-show="noReceiver">
+  			Please enter the receiver of the message. <a class="close">&times;</a>
 			</div>
 			<label for="message-subject">Subject</label>
 			<input type="text" id="message-subject" ng-model="messageSubject">
+			<div data-alert class="alert-box warning round" id="alert-three" ng-show="noSubject">
+  			There is no user named {{messageReceiver}} <a class="close">&times;</a>
+			</div>
 		</div>
 		<div class="small-2 columns">
-  		<input class="button" type="submit" value="Save" ng-show="isValid">
+  		<input class="button" type="submit" value="Send" ng-show="isValid">
   	</div>
   	<div class="small-2 columns">
   		<a class="button" ng-href="#/{{currentUser.name}}">Cancel</a>
@@ -24,7 +30,10 @@
   <div class="row">
   	<div class="small-10 columns end">
 		  <label for="message-body">Message Body</label>
-		  <textarea id="message-body" rows="15" ng-model="docBody"></textarea>
+		  <textarea id="message-body" rows="15" ng-model="messageBody"></textarea>
+		  <div data-alert class="alert-box warning round" id="alert-four" ng-show="noBody">
+  			There is no user named {{messageReceiver}} <a class="close">&times;</a>
+			</div>
 		</div>
 	</div>
 </form>

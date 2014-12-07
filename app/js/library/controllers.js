@@ -524,9 +524,57 @@ angular.module('simpleWriter.controllers', [])
     $location.path('/');
   else {
     $scope.messages = [];
-    socket.emit('getMessages', { user: $routeParams.username }, function(messages) {
-      if (messages.length)
-        $scope.messages = messages;
+    socket.emit('getMessages', { user: $routeParams.username }, function(message) {
+      if (message)
+        $scope.messages.push(message);
     });
   }
+}]).controller('newMessageCtrl', ['$scope', '$routeParams', '$location', 'socket', function($scope, $routeParams, $location, socket) {
+    
+    $scope.receiverField = angular.element('#message-receiver');
+    $scope.receiverField.on('blur', function() {
+      $scope.checkReceiver($scope.messageReceiver);
+    });
+    $scope.subjectField = angular.element('#message-subject');
+    $scope.subjectField.on('blur', function() {
+      if ($scope.messageSubject.length === 0)
+        $scope.noSubject = true;
+      else {
+        $scope.noSubject = false;
+        if (!$scope.noBody && !$scope.noReceiver && !$scope.noReceiverFound)
+          $scope.isValid = true;
+      }
+    });
+    $scope.bodyField = angular.element('#message-body');
+    $scope.bodyField.on('blur', function() {
+      if ($scope.messageBody.length === 0)
+        $scope.noBody = true;
+      else{
+        $scope.noBody = false;
+        if (!$scope.noSubject && !$scope.noReceiver && !$scope.noReceiverFound)
+          $scope.isValid = true;
+      }
+    });
+
+    $scope.checkReceiver = function(messageReceiver) {
+      if (messageReceiver.length) {
+        socket.emit('searchUsers', { query: messageReceiver, justChecking: true }, function(response) {
+          if (response.userNotFound) {
+            $scope.noReceiverFound = true,
+            $scope.isValid = false;
+          }
+          else {
+            $scope.noReceiver = $scope.noReceiverFound = false;
+            if (!$scope.noBody && !$scope.noSubject)
+              $scope.isValid = true;
+          }
+        });
+      }
+      else {
+        $scope.noReceiver = true,
+        $scope.isValid = false;
+      }
+    }
+
+    $scope.sendMessage
 }]);

@@ -37,7 +37,10 @@
 	</div>
 </div>
 <div class="row">
-	<div class="small-12 columns">
+	<div class="small-6 columns">
 		<a href="#/new-document" class="button" ng-show="ownsProfile">New Document</a>
+	</div>
+	<div class="small-6 columns">
+		<a ng-href="#/{{currentUser.name}}/messages" class="button" ng-show="ownsProfile">Messages</a>
 	</div>
 </div>
