@@ -1,6 +1,6 @@
 <br>
 <div class="row">
-	<h2 class="large-6 medium-8 small-10 columns">New Message</h2>
+	<h2 class="large-6 medium-8 small-12 columns">New Message</h2>
 </div>
 
 <form name="new-document-form" ng-submit="sendMessage();">
@@ -9,30 +9,37 @@
 		  <label for="message-receiver">To</label>
 		  <input type="text" id="message-receiver" ng-model="messageReceiver">
 		  <div data-alert class="alert-box warning round" id="alert-one" ng-show="noReceiverFound">
-  			There is no user named {{messageReceiver}} <a class="close">&times;</a>
+  			There is no user named {{messageReceiver}}
 			</div>
 			<div data-alert class="alert-box warning round" id="alert-two" ng-show="noReceiver">
-  			Please enter the receiver of the message. <a class="close">&times;</a>
+  			Please enter the receiver of the message.
 			</div>
 			<label for="message-subject">Subject</label>
 			<input type="text" id="message-subject" ng-model="messageSubject">
 			<div data-alert class="alert-box warning round" id="alert-three" ng-show="noSubject">
-  			There is no user named {{messageReceiver}} <a class="close">&times;</a>
+  			Please add a subject to your message.
 			</div>
 		</div>
 		<div class="small-2 columns">
   		<input class="button" type="submit" value="Send" ng-show="isValid">
   	</div>
   	<div class="small-2 columns">
-  		<a class="button" ng-href="#/{{currentUser.name}}">Cancel</a>
+  		<a class="button" ng-href="#/{{currentUser.name}}/messages">Cancel</a>
   	</div>
   </div>
   <div class="row">
-  	<div class="small-10 columns end">
+  	<div class="small-12 columns">
 		  <label for="message-body">Message Body</label>
 		  <textarea id="message-body" rows="15" ng-model="messageBody"></textarea>
 		  <div data-alert class="alert-box warning round" id="alert-four" ng-show="noBody">
-  			There is no user named {{messageReceiver}} <a class="close">&times;</a>
+  			Please add a body to your message.
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="small-12 columns">
+			<div data-alert class="alert-box success round" id="alert-five" ng-show="messageSent">
+				Your message has been sent. <a href="" class="close" ng-click="closeMessageSentAlert()">&times;</a>
 			</div>
 		</div>
 	</div>

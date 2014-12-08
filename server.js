@@ -288,9 +288,9 @@ io.sockets.on('connection', function(socket) {
 		if (data.justChecking) {
 			client.hgetall(data.query, function(err, user) {
 				if (!user)
-					res.json({userNotFound: true});
+					fn({userNotFound: true});
 				else
-					res.json({userNotFound: false});
+					fn({userNotFound: false});
 			});
 		}
 		else {
@@ -347,17 +347,29 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('getMessages', function(data, fn) {
 		var user = data.user;
-		client.smembers(user + "-messages", function(err, ids) {
+		client.smembers(user + "-messages", function(err1, ids) {
 			if (ids.length >= 1) {
 				var id;
 				for (var i = 0, length = ids.length; i < length; i++) {
 					id = ids[i];
-					client.hgetall(user + ":" + "message:" + id, function(err, message) {
+					client.hgetall(user + ":message:" + id, function(err2, message) {
 						fn(message);
 					});
 				}
 			}
 		})
-	})
+	});
+
+	socket.on('sendMessage', function(data, fn) {
+		client.incr("message-id", function(err1, id) {
+			client.sadd(data.receiver + "-messages", id, function(err2, reply1) {
+				if (reply1)
+					client.hmset(data.receiver + ":message:" + id, "id", id, "sender", data.sender, "subject", data.subject, "body", data.body, "sent", data.sent, function(err3, reply2) {
+						if (reply2)
+							fn();
+					});
+			});
+		});
+	});
 });
 

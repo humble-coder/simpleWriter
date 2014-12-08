@@ -537,27 +537,28 @@ angular.module('simpleWriter.controllers', [])
     });
     $scope.subjectField = angular.element('#message-subject');
     $scope.subjectField.on('blur', function() {
-      if ($scope.messageSubject.length === 0)
+      if ($scope.messageSubject && $scope.messageSubject.length === 0)
         $scope.noSubject = true;
       else {
         $scope.noSubject = false;
-        if (!$scope.noBody && !$scope.noReceiver && !$scope.noReceiverFound)
+        if ($scope.noBody === false && $scope.noReceiver === false && $scope.noReceiverFound === false)
           $scope.isValid = true;
       }
     });
     $scope.bodyField = angular.element('#message-body');
     $scope.bodyField.on('blur', function() {
-      if ($scope.messageBody.length === 0)
+      if ($scope.messageBody && $scope.messageBody.length === 0)
         $scope.noBody = true;
       else{
         $scope.noBody = false;
-        if (!$scope.noSubject && !$scope.noReceiver && !$scope.noReceiverFound)
+        if ($scope.noSubject === false && $scope.noReceiver === false && $scope.noReceiverFound === false)
           $scope.isValid = true;
       }
     });
+    $scope.messageSentAlert = angular.element('#alert-five');
 
     $scope.checkReceiver = function(messageReceiver) {
-      if (messageReceiver.length) {
+      if (messageReceiver && messageReceiver.length) {
         socket.emit('searchUsers', { query: messageReceiver, justChecking: true }, function(response) {
           if (response.userNotFound) {
             $scope.noReceiverFound = true,
@@ -565,7 +566,7 @@ angular.module('simpleWriter.controllers', [])
           }
           else {
             $scope.noReceiver = $scope.noReceiverFound = false;
-            if (!$scope.noBody && !$scope.noSubject)
+            if ($scope.noBody === false && $scope.noSubject === false)
               $scope.isValid = true;
           }
         });
@@ -576,5 +577,13 @@ angular.module('simpleWriter.controllers', [])
       }
     }
 
-    $scope.sendMessage
+    $scope.sendMessage = function() {
+      socket.emit('sendMessage', { sender: $scope.currentUser.name, receiver: $scope.messageReceiver, subject: $scope.messageSubject, body: $scope.messageBody, sent: new Date().toUTCString() }, function() {
+        $scope.messageSent = true;
+      });
+    }
+
+    $scope.closeMessageSentAlert = function() {
+      $scope.messageSentAlert.hide();
+    }
 }]);
