@@ -6,7 +6,7 @@
 <div class="row" ng-show="sets.length">
 	<div class="small-12 columns">
 		<ul>
-			<li ng-repeat="result in results"><a ng-href="#/{{result.user}}/{{result.id}}">{{result.title}}</a> by {{result.user}}</li>
+			<li ng-repeat="result in results"><a ng-href="#/users/{{result.user}}/docs/{{result.id}}">{{result.title}}</a> by {{result.user}}</li>
 		</ul>
 		<ul class="pagination" ng-show="sets.length > 1">
 			<li class="arrow" id="back-arrow"><a href="" ng-click="back(currentSet);">&laquo;</a></li>

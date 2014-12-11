@@ -4,12 +4,15 @@
 		<h1 id="document-title">{{docTitle}}</h1>
 	</div>
 	<div class="small-4 columns" ng-show="userHasAccess">
-		<a ng-href="#/{{docOwner}}/documents/{{docId}}/edit" class="button">Edit</a>
+		<a ng-href="#/docs/{{docOwner}}/{{docId}}/edit" class="button">Edit</a>
 	</div>
 </div>
 <div class="row">
-	<div class="small-10 columns end">
+	<div class="small-8 columns">
 		<article id="document-body">{{docBody}}</article>
+	</div>
+	<div class="small-4 columns">
+		<a ng-href="#/users/{{docOwner}}" class="button">Back</a>
 	</div>
 </div>
 

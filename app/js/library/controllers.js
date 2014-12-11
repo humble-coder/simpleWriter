@@ -50,12 +50,12 @@ angular.module('simpleWriter.controllers', [])
   }
 
   $scope.searchUsers = function(userQuery) {
-    $location.path('/search/users/' + userQuery);
+    $location.path('/search-users/' + userQuery);
   }
 
   $scope.searchDocs = function(docQuery) {
     docQuery = docQuery.replace(/\s+/g, '').toLowerCase();
-    $location.path('/search/documents/' + docQuery);
+    $location.path('/search-documents/' + docQuery);
   }
 
   $scope.$on('auth-login-success', function(event, user) {
@@ -86,7 +86,7 @@ angular.module('simpleWriter.controllers', [])
     $scope.userMessage.text("");
 
     if (authService.isAuthenticated())
-      $location.path('/' + $scope.currentUser.name);
+      $location.path('/users/' + $scope.currentUser.name);
 
     $scope.saveUser = function() {
       var userData = { userName: $scope.userName, userEmail: $scope.userEmail, userPassword: $scope.userPassword, userPasswordConfirmation: $scope.passwordConfirmation };
@@ -110,13 +110,13 @@ angular.module('simpleWriter.controllers', [])
     $scope.userMessage.text("");
 
     if (authService.isAuthenticated())
-      $location.path('/' + $scope.currentUser.name);
+      $location.path('/users' + $scope.currentUser.name);
 
     $scope.login = function(credentials) {
       authService.login(credentials).then(function(response) {
         if (response.name) {
           $scope.$emit(AUTH_EVENTS.loginSuccess, response);
-          $location.path('/' + response.name);
+          $location.path('/users' + response.name);
         }
         else
           $scope.$emit(AUTH_EVENTS.loginFailed, response);
@@ -149,7 +149,7 @@ angular.module('simpleWriter.controllers', [])
             if (doc) {
               $scope.isDuplicate = true,
               $scope.isValid = false,
-              $scope.linkToDuplicate = $scope.currentUser.name + '/documents/' + $scope.docTitle.replace(/\s+/g, '');
+              $scope.linkToDuplicate = '/users/' + $scope.currentUser.name + '/docs/' + $scope.docTitle.replace(/\s+/g, '');
             }
             else {
               if ($scope.isDuplicate && $scope.linkToDuplicate.length) {
@@ -179,7 +179,7 @@ angular.module('simpleWriter.controllers', [])
           docInfo.id = docInfo.title.replace(/\s+/g, '');
 
           socket.emit('saveDocument', { title: docInfo.title, body: docInfo.body, owner: docInfo.owner, sessionId: Session.id }, function() {
-            $location.path('/' + docInfo.owner + '/documents/' + docInfo.id);
+            $location.path('/docs/' + docInfo.owner + '/' + docInfo.id);
           }); 
         }
       }
@@ -330,7 +330,7 @@ angular.module('simpleWriter.controllers', [])
 
     $scope.setupPage = function(docInfo) {
       if (!$scope.userHasAccess(docInfo))
-        $location.path('/' + $routeParams.username + '/' + $routeParams.docId);
+        $location.path('/docs/' + $routeParams.username + '/' + $routeParams.docId);
       else {
         $scope.docOwner = docInfo.owner,
         $scope.docId = docInfo.id,
@@ -342,8 +342,8 @@ angular.module('simpleWriter.controllers', [])
         $scope.docTitleDisplay.text(docInfo.title),
         $scope.docTitleArea.val(docInfo.title),
         $scope.docBodyArea.val(docInfo.body),
-        $scope.docBodyArea.on('keydown', $scope.updateDocument),
-        $scope.docTitleArea.on('keydown', $scope.updateDocument),
+        $scope.docBodyArea.on('keyup', $scope.updateDocument),
+        $scope.docTitleArea.on('keyup', $scope.updateDocument),
         $scope.lastMessageTime = 0,
         $scope.messages = docInfo.messages || [];
       }
@@ -375,7 +375,7 @@ angular.module('simpleWriter.controllers', [])
       docInfo = data,
       $scope.docId = data.docId;
       if ($scope.docId != $routeParams.docId)
-        $location.path('/' + data.owner + '/' + $scope.docId);
+        $location.path('/docs/' + data.owner + '/' + $scope.docId);
       else {
         if (docInfo.user != $scope.currentUser.name)
           $scope.docBodyArea.val(docInfo.body);
@@ -398,7 +398,6 @@ angular.module('simpleWriter.controllers', [])
       }
     }
   }]).controller('searchUsersCtrl', ['$scope', '$routeParams', 'socket', function($scope, $routeParams, socket) {
-
     $scope.users = [],
     $scope.results = [],
     $scope.sets = [],
@@ -523,10 +522,26 @@ angular.module('simpleWriter.controllers', [])
   if ($scope.currentUser.name !== $routeParams.username)
     $location.path('/');
   else {
-    $scope.messages = [];
+    $scope.messages = [],
+    $scope.results = [];
+
+    $scope.displayMessages = function(results) {
+      for (var i = 0, length = results.length; i < length; i++)
+        $scope.messages.push(results[i]);
+    }
+    
     socket.emit('getMessages', { user: $routeParams.username }, function(message) {
-      if (message)
-        $scope.messages.push(message);
+      if (message && message.done) {
+        console.log("first");
+        console.log(message);
+        $scope.results.push(message.value);
+        $scope.displayMessages($scope.results);
+      }
+      else {
+        console.log("second");
+        if (message)
+          $scope.results.push(message);
+      }
     });
   }
 }]).controller('newMessageCtrl', ['$scope', '$routeParams', '$location', 'socket', function($scope, $routeParams, $location, socket) {

@@ -37,6 +37,8 @@ app.get('/', function(req, res) {
 	res.send('./index.html');
 });
 
+app.get
+
 app.post('/recover-session', function(req, res) {
 	var sessionData = req.body.data;
 	client.hgetall("session:" + sessionData.user.id, function(err, session) {
@@ -349,15 +351,23 @@ io.sockets.on('connection', function(socket) {
 		var user = data.user;
 		client.smembers(user + "-messages", function(err1, ids) {
 			if (ids.length >= 1) {
-				var id;
-				for (var i = 0, length = ids.length; i < length; i++) {
-					id = ids[i];
+				
+				for (var j = 0, length = ids.length; j < length; j++) {
+					console.log(j);
+					id = ids[j];
 					client.hgetall(user + ":message:" + id, function(err2, message) {
-						fn(message);
+						if (j < length - 1) {
+							console.log("first");
+							fn(message);
+						}
+						else {
+							console.log("second");
+							fn({done: true, value: message});
+						}
 					});
 				}
 			}
-		})
+		});
 	});
 
 	socket.on('sendMessage', function(data, fn) {

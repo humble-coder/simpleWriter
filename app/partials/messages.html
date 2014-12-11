@@ -3,15 +3,15 @@
 		<h2>Your Messages</h2>
 	</div>
 	<div class="small-6 columns">
-		<a href="#/{{currentUser.name}}/new-message" class="button">New Message</a>
+		<a href="#/messages/new-message" class="button">New Message</a>
 	</div>
 </div>
 <div class="row" ng-repeat="message in messages">
 	<div class="small-12 columns">
 		<dl class="accordion" data-accordion>
 			<dd class="accordion-navigation">
-				<a ng-href="{{message.id}}"><b>Sender:</b> {{message.sender}} <b>Subject:</b> {{message.subject}} <b>Sent:</b> {{message.sent}}</a>
-				<div ng-attr-id="{{message.id}}" class="content">{{message.body}}</div>
+				<a ng-href="#message-{{message.id}}"><b>Sender:</b> {{message.sender}} <b>Subject:</b> {{message.subject}} <b>Sent:</b> {{message.sent}}</a>
+				<div ng-attr-id="message-{{message.id}}" class="content">{{message.body}}</div>
 			</dd>
 		</dl>
 	</div>

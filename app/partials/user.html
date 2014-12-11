@@ -23,7 +23,7 @@
 			</thead>
 			<tbody>
 				<tr ng-repeat="document in documents">
-					<td><a ng-href="#/{{user}}/documents/{{document.id}}">{{document.title}}</td>
+					<td><a ng-href="#/docs/{{user}}/{{document.id}}">{{document.title}}</td>
 					<td></td>
 					<td></td>
 				</tr>
@@ -41,6 +41,6 @@
 		<a href="#/new-document" class="button" ng-show="ownsProfile">New Document</a>
 	</div>
 	<div class="small-7 columns">
-		<a ng-href="#/{{currentUser.name}}/messages" class="button" ng-show="ownsProfile">Messages</a>
+		<a ng-href="#/messages/{{currentUser.name}}" class="button" ng-show="ownsProfile">Messages</a>
 	</div>
 </div>
