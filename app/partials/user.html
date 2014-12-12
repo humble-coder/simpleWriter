@@ -2,6 +2,7 @@
 	<div class="small-12 columns">
 		<h1>{{user}}</h1>
 		<img id="user-image">
+		<label for="new-image-button" ng-hide="hasPic">Upload a profile pic!</label>
 		<input type="file" class="hide" id="new-image-button" image-upload>
 		<a href="" class="hide" id="clear-image-button" ng-click="clearImage()">Clear Profile Image</a>
 	</div>
@@ -41,6 +42,6 @@
 		<a href="#/new-document" class="button" ng-show="ownsProfile">New Document</a>
 	</div>
 	<div class="small-7 columns">
-		<a ng-href="#/messages/{{currentUser.name}}" class="button" ng-show="ownsProfile">Messages</a>
+		<a ng-href="#/messages" class="button" ng-show="ownsProfile">Messages</a>
 	</div>
 </div>

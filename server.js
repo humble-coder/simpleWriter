@@ -112,7 +112,7 @@ app.post('/new-user', function(req, res) {
 							client.hmset("users:" + userId, "name", userName, "email", email, "password", password, "id", userId, function(err, reply2) {
 								client.hmset(lowercaseName, "email", email, "id", userId, function(err, reply3) {
 									client.hmset(email, "name", userName, "id", userId, function(err, reply4) {
-										for (var index = 0, nameLength = lowercaseName.length; index < nameLength - 1; index++)
+										for (var index = 0, nameLength = lowercaseName.length; index < nameLength; index++)
 											client.sadd("users:" + lowercaseName.substring(0, index + 1) + ":index", userId);
 										res.json({userName: userInfo.userName});
 									});
@@ -149,7 +149,7 @@ io.sockets.on('connection', function(socket) {
 				if (reply1) {
 					client.hmset(data.owner + "-" + docId, "title", data.title, "body", data.body, "owner", data.owner, "id", docId, function(err2, reply2) {
 						if (reply2) {
-							for (var index = 0, length = docId.length; index < length - 1; index++)
+							for (var index = 0, length = docId.length; index < length; index++)
 								client.sadd("documents-" + docId.substring(0, index + 1).toLowerCase(), data.owner + "-" + docId);
 							socket.join(data.owner + "-" + docId);
 							client.del(data.owner + "-protect");
@@ -349,21 +349,20 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('getMessages', function(data, fn) {
 		var user = data.user;
-		client.smembers(user + "-messages", function(err1, ids) {
-			if (ids.length >= 1) {
-				
-				for (var j = 0, length = ids.length; j < length; j++) {
-					console.log(j);
-					id = ids[j];
-					client.hgetall(user + ":message:" + id, function(err2, message) {
-						if (j < length - 1) {
-							console.log("first");
-							fn(message);
-						}
-						else {
-							console.log("second");
+		client.smembers(user + "-messages", function(err1, results) {
+			if (results) {
+				var ids = results,
+				length = results.length,
+				count = 0,
+				finished = false;
+				while (!finished) {
+					client.hgetall(user + ":message:" + ids[count], function(err2, message) {
+						if (count == length - 1) {
+							finished = true;
 							fn({done: true, value: message});
 						}
+						else
+							fn(message);
 					});
 				}
 			}

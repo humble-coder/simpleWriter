@@ -12,6 +12,7 @@ angular.module('simpleWriter.directives', []).directive('imageUpload', ['$http',
 			reader.onload = function(e) { $http.post('/image-upload', {image: e.target.result, user: user }).then(function(res) {
 				if (res.status === 200) {
 					scope.userImage.attr("src", res.data.image);
+					scope.hasPic = true;
 					scope.clearImageButton.removeClass("hide");
 				}
 			})};

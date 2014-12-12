@@ -239,8 +239,10 @@ angular.module('simpleWriter.controllers', [])
     });
 
     socket.emit('getImage', { user: $routeParams.username }, function(image) {
-      if (image)
+      if (image){
         $scope.userImage.attr("src", image);
+        $scope.hasPic = true;
+      }
     });
 
     $scope.displaySet = function(set) {
@@ -251,13 +253,17 @@ angular.module('simpleWriter.controllers', [])
     }
 
     $scope.back = function(set) {
-      nextSet = $scope.sets[set.index - 2];
-      $scope.displaySet(nextSet);
+      if (set.index >= 2) {
+        nextSet = $scope.sets[set.index - 2];
+        $scope.displaySet(nextSet);
+      }
     }
 
     $scope.forward = function(set) {
-      nextSet = $scope.sets[set.index];
-      $scope.displaySet(nextSet);
+      if (set.index < $scope.sets.length) {
+        nextSet = $scope.sets[set.index];
+        $scope.displaySet(nextSet);
+      }
     }
 
     $scope.clearImage = function() {
@@ -357,20 +363,18 @@ angular.module('simpleWriter.controllers', [])
       $scope.alertBox.remove();
     }
 
-    if (!docInfo.id || (docInfo.id !== $routeParams.docId)) {
-      socket.emit('getDocument', { owner: $routeParams.username, docId: $routeParams.docId }, function(doc) {
-        if (doc) {
-          $scope.docFound = true,
-          docInfo = doc,
-          $scope.setupPage(docInfo);
-        }
-        else {
-          $scope.docFound = false,
-          $scope.notFoundMessage = $routeParams.username + " does not have a document entitled '" + $routeParams.docId + "'.";
-        }
-      });
-    }
-
+    socket.emit('getDocument', { owner: $routeParams.username, docId: $routeParams.docId }, function(doc) {
+      if (doc) {
+        $scope.docFound = true,
+        docInfo = doc,
+        $scope.setupPage(docInfo);
+      }
+      else {
+        $scope.docFound = false,
+        $scope.notFoundMessage = $routeParams.username + " does not have a document entitled '" + $routeParams.docId + "'.";
+      }
+    });
+  
     socket.on('documentChanged', function(data) {
       docInfo = data,
       $scope.docId = data.docId;
@@ -518,10 +522,11 @@ angular.module('simpleWriter.controllers', [])
       nextSet = $scope.sets[set.index];
       $scope.displaySet(nextSet);
     }
-}]).controller('messagesCtrl', ['$scope', '$routeParams', '$location', 'socket', function($scope, $routeParams, $location, socket) {
-  if ($scope.currentUser.name !== $routeParams.username)
-    $location.path('/');
-  else {
+}]).controller('messagesCtrl', ['$scope', '$location', 'socket', function($scope, $location, socket) {
+  console.log("What?");
+
+  if ($scope.currentUser.name) {
+    console.log("In");
     $scope.messages = [],
     $scope.results = [];
 
@@ -529,8 +534,8 @@ angular.module('simpleWriter.controllers', [])
       for (var i = 0, length = results.length; i < length; i++)
         $scope.messages.push(results[i]);
     }
-    
-    socket.emit('getMessages', { user: $routeParams.username }, function(message) {
+      
+    socket.emit('getMessages', { user: $scope.currentUser.name }, function(message) {
       if (message && message.done) {
         console.log("first");
         console.log(message);
@@ -544,82 +549,89 @@ angular.module('simpleWriter.controllers', [])
       }
     });
   }
-}]).controller('newMessageCtrl', ['$scope', '$routeParams', '$location', 'socket', function($scope, $routeParams, $location, socket) {
+  else
+    $location.path('/');
 
-    $scope.$watch('messageReceiver', function(newValue, oldValue) {
-      if ((newValue && newValue.length > 0) && (newValue != oldValue))
-        $scope.checkReceiver(newValue);
-      else {
-        $scope.noReceiver = true,
-        $scope.isValid = false;
-      }
-    }, true);
+}]).controller('newMessageCtrl', ['$scope', '$location', 'socket', function($scope, $location, socket) {
 
-    $scope.$watch('messageSubject', function(newValue, oldValue) {
-      if ((newValue && newValue.length > 0)) {
-        if ($scope.noSubject === true) {
-          $scope.noSubject = false;
-          if ($scope.showNoSubjectWarning)
-            $scope.showNoSubjectWarning = false;
-        }
-      }
-      else {
-        $scope.noSubject = true,
-        $scope.isValid = false;
-      }
-    }, true);
-
-    $scope.$watch('messageBody', function(newValue, oldValue) {
-      if ((newValue && newValue.length > 0)) {
-        if ($scope.noBody) {
-          $scope.noBody = false;
-          if ($scope.showNoBodyWarning)
-            $scope.showNoBodyWarning = false;
-        }
-      }
-      else {
-        $scope.noBody = true,
-        $scope.isValid = false;
-      }
-    }, true);
-
-    $scope.messageSentAlert = angular.element('#alert-five');
-
-    $scope.checkReceiver = function(messageReceiver) {
-      socket.emit('searchUsers', { query: messageReceiver, justChecking: true }, function(response) {
-        if (response.userNotFound) {
-          $scope.noReceiverFound = true,
-          $scope.noReceiver = false,
+    if ($scope.currentUser.name) {
+      $scope.$watch('messageReceiver', function(newValue, oldValue) {
+        if ((newValue && newValue.length > 0) && (newValue != oldValue))
+          $scope.checkReceiver(newValue);
+        else {
+          $scope.noReceiver = true,
           $scope.isValid = false;
         }
-        else
-          $scope.noReceiver = $scope.noReceiverFound = $scope.showNoReceiverFoundWarning = $scope.showNoReceiverWarning = false;
-      });
-    }
+      }, true);
 
-    $scope.checkForm = function() {
-      $scope.showNoSubjectWarning = $scope.noSubject,
-      $scope.showNoBodyWarning = $scope.noBody,
-      $scope.showNoReceiverFoundWarning = $scope.noReceiverFound,
-      $scope.showNoReceiverWarning = $scope.noReceiver;
+      $scope.$watch('messageSubject', function(newValue, oldValue) {
+        if ((newValue && newValue.length > 0)) {
+          if ($scope.noSubject === true) {
+            $scope.noSubject = false;
+            if ($scope.showNoSubjectWarning)
+              $scope.showNoSubjectWarning = false;
+          }
+        }
+        else {
+          $scope.noSubject = true,
+          $scope.isValid = false;
+        }
+      }, true);
 
-      if ($scope.noReceiverFound)
-        $scope.tempVal = $scope.messageReceiver;
+      $scope.$watch('messageBody', function(newValue, oldValue) {
+        if ((newValue && newValue.length > 0)) {
+          if ($scope.noBody) {
+            $scope.noBody = false;
+            if ($scope.showNoBodyWarning)
+              $scope.showNoBodyWarning = false;
+          }
+        }
+        else {
+          $scope.noBody = true,
+          $scope.isValid = false;
+        }
+      }, true);
 
-      if (!$scope.noSubject && !$scope.noBody && !$scope.noReceiverFound && !$scope.noReceiver)
-        $scope.isValid = true;
-    }
+      $scope.messageSentAlert = angular.element('#alert-five');
 
-    $scope.sendMessage = function() {
-      $scope.checkForm();
-      if ($scope.isValid) {
-        socket.emit('sendMessage', { sender: $scope.currentUser.name, receiver: $scope.messageReceiver, subject: $scope.messageSubject, body: $scope.messageBody, sent: new Date().toUTCString() }, function() {
-          $scope.messageSent = true;
+      $scope.checkReceiver = function(messageReceiver) {
+        socket.emit('searchUsers', { query: messageReceiver, justChecking: true }, function(response) {
+          if (response.userNotFound) {
+            $scope.noReceiverFound = true,
+            $scope.noReceiver = false,
+            $scope.isValid = false;
+          }
+          else
+            $scope.noReceiver = $scope.noReceiverFound = $scope.showNoReceiverFoundWarning = $scope.showNoReceiverWarning = false;
         });
       }
-    }
 
-    $scope.closeMessageSentAlert = function() {
-      $scope.messageSentAlert.hide();
+      $scope.checkForm = function() {
+        $scope.showNoSubjectWarning = $scope.noSubject,
+        $scope.showNoBodyWarning = $scope.noBody,
+        $scope.showNoReceiverFoundWarning = $scope.noReceiverFound,
+        $scope.showNoReceiverWarning = $scope.noReceiver;
+
+        if ($scope.noReceiverFound)
+          $scope.tempVal = $scope.messageReceiver;
+
+        if (!$scope.noSubject && !$scope.noBody && !$scope.noReceiverFound && !$scope.noReceiver)
+          $scope.isValid = true;
+      }
+
+      $scope.sendMessage = function() {
+        $scope.checkForm();
+        if ($scope.isValid) {
+          socket.emit('sendMessage', { sender: $scope.currentUser.name, receiver: $scope.messageReceiver, subject: $scope.messageSubject, body: $scope.messageBody, sent: new Date().toUTCString() }, function() {
+            $scope.messageSent = true;
+          });
+        }
+      }
+
+      $scope.closeMessageSentAlert = function() {
+        $scope.messageSentAlert.hide();
+      }
     }
+    else
+      $location.path('/');
 }]);
