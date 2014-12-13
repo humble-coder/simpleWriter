@@ -349,35 +349,24 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('getMessages', function(data, fn) {
 		var user = data.user;
-		client.smembers(user + "-messages", function(err1, results) {
-			if (results) {
-				var ids = results,
-				length = results.length,
-				count = 0,
-				finished = false;
-				while (!finished) {
-					client.hgetall(user + ":message:" + ids[count], function(err2, message) {
-						if (count == length - 1) {
-							finished = true;
-							fn({done: true, value: message});
-						}
-						else
-							fn(message);
-					});
-				}
+		client.smembers(user + "-messages", function(err1, messages) {
+			if (messages.length) {
+				for (var i = 0, length = messages.length; i < length; i++)
+					messages[i] = messages[i].split("-");
+				fn(messages);
 			}
+			else
+			  fn(null);  
 		});
 	});
 
 	socket.on('sendMessage', function(data, fn) {
-		client.incr("message-id", function(err1, id) {
-			client.sadd(data.receiver + "-messages", id, function(err2, reply1) {
-				if (reply1)
-					client.hmset(data.receiver + ":message:" + id, "id", id, "sender", data.sender, "subject", data.subject, "body", data.body, "sent", data.sent, function(err3, reply2) {
-						if (reply2)
-							fn();
-					});
-			});
+		client.sadd(data.receiver + "-messages", data.sender + "-" + data.subject + "-" data.body + "-" + data.sent, function(err2, reply1) {
+			if (reply1)
+				client.hmset(data.receiver + ":message:" + data.sent, "sender", data.sender, "subject", data.subject, "body", data.body, "sent", data.sent, function(err3, reply2) {
+					if (reply2)
+						fn();
+				});
 		});
 	});
 });

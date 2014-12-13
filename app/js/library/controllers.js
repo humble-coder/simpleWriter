@@ -523,30 +523,11 @@ angular.module('simpleWriter.controllers', [])
       $scope.displaySet(nextSet);
     }
 }]).controller('messagesCtrl', ['$scope', '$location', 'socket', function($scope, $location, socket) {
-  console.log("What?");
 
   if ($scope.currentUser.name) {
-    console.log("In");
-    $scope.messages = [],
-    $scope.results = [];
-
-    $scope.displayMessages = function(results) {
-      for (var i = 0, length = results.length; i < length; i++)
-        $scope.messages.push(results[i]);
-    }
-      
-    socket.emit('getMessages', { user: $scope.currentUser.name }, function(message) {
-      if (message && message.done) {
-        console.log("first");
-        console.log(message);
-        $scope.results.push(message.value);
-        $scope.displayMessages($scope.results);
-      }
-      else {
-        console.log("second");
-        if (message)
-          $scope.results.push(message);
-      }
+    socket.emit('getMessages', { user: $scope.currentUser.name }, function(messages) {
+      if (messages)
+        $scope.messages = messages;
     });
   }
   else

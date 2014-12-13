@@ -11,7 +11,7 @@ angular.module('simpleWriter', [
   'simpleWriter.factories',
   'simpleWriter.constants'
 ]).
-config(['$routeProvider', function($routeProvider) {
+config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   $routeProvider.when('/', {templateUrl: './partials/main.html', controller: 'mainCtrl'});
   $routeProvider.when('/register', {templateUrl: './partials/registration.html', controller: 'registrationCtrl'});
   $routeProvider.when('/login', {templateUrl: './partials/login.html', controller: 'loginCtrl'});
