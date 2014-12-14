@@ -37,8 +37,6 @@ app.get('/', function(req, res) {
 	res.send('./index.html');
 });
 
-app.get
-
 app.post('/recover-session', function(req, res) {
 	var sessionData = req.body.data;
 	client.hgetall("session:" + sessionData.user.id, function(err, session) {
@@ -351,9 +349,16 @@ io.sockets.on('connection', function(socket) {
 		var user = data.user;
 		client.smembers(user + "-messages", function(err1, messages) {
 			if (messages.length) {
-				for (var i = 0, length = messages.length; i < length; i++)
+				var response = [],
+				attributes = ["sender", "subject", "body", "sent", "id"],
+				messageObject = {};
+				for (var i = 0, length = messages.length; i < length; i++) {
 					messages[i] = messages[i].split("-");
-				fn(messages);
+					for (var j = 0, attrLength = attributes.length; j < attrLength; j++)
+						messageObject[attributes[j]] = messages[i][j];
+					response.push(messageObject);
+				}
+				fn(response);
 			}
 			else
 			  fn(null);  
@@ -361,12 +366,15 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('sendMessage', function(data, fn) {
-		client.sadd(data.receiver + "-messages", data.sender + "-" + data.subject + "-" data.body + "-" + data.sent, function(err2, reply1) {
-			if (reply1)
-				client.hmset(data.receiver + ":message:" + data.sent, "sender", data.sender, "subject", data.subject, "body", data.body, "sent", data.sent, function(err3, reply2) {
-					if (reply2)
-						fn();
-				});
+		client.incr("message-id", function(err, id) {
+			client.sadd(data.receiver + "-messages", data.sender + "-" + data.subject + "-" + data.body + "-" + data.sent + "-" + id, function(err2, reply1) {
+				if (reply1) {
+					client.hmset(data.receiver + ":message:" + data.sent, "sender", data.sender, "subject", data.subject, "body", data.body, "sent", data.sent, function(err3, reply2) {
+						if (reply2)
+							fn();
+					});
+				}
+			});
 		});
 	});
 });

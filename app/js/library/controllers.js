@@ -524,14 +524,22 @@ angular.module('simpleWriter.controllers', [])
     }
 }]).controller('messagesCtrl', ['$scope', '$location', 'socket', function($scope, $location, socket) {
 
+  $scope.messages = [],
+  $scope.buttonMessage = "Show Message";
+
   if ($scope.currentUser.name) {
-    socket.emit('getMessages', { user: $scope.currentUser.name }, function(messages) {
-      if (messages)
-        $scope.messages = messages;
+    socket.emit('getMessages', { user: $scope.currentUser.name }, function(response) {
+      if (response)
+        $scope.messages = response;
     });
   }
   else
     $location.path('/');
+
+  $scope.showMessage = function(message) {
+    angular.element('#message-' + message.id).toggleClass('closed');
+    $scope.buttonMessage = $scope.buttonMessage === "Hide Message" ? "Show Message" : "Hide Message";
+  }
 
 }]).controller('newMessageCtrl', ['$scope', '$location', 'socket', function($scope, $location, socket) {
 

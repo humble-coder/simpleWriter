@@ -9,14 +9,16 @@
 <div class="row" ng-repeat="message in messages">
 	<div class="small-4 columns">
 		<div class="panel">
-			<p class="lead"><b>Sender:</b> <a ng-href="#/users/{{message[0]}}">{{message[0]}}</a></p>
+			<p class="lead"><b>Sender:</b> <a ng-href="#/users/{{message.sender}}">{{message.sender}}</a></p>
 		</div>
 	</div>
 	<div class="small-8 columns">
 		<div class="panel">
-			<section><b>Subject:</b> {{message[1]}}</section> 
-			<section><b>Sent:</b> {{message[2]}}</section>
-			<div ng-attr-id="message-{{message[2]}}" class="slider closed"></div>
+			<section><b>Subject:</b> {{message.subject}}</section> 
+			<section><b>Sent:</b> {{message.sent}}</section>
+			<br>
+			<a href="" class="button" ng-click="showMessage(message)">{{buttonMessage}}</a>
+			<section ng-attr-id="message-{{message.id}}" class="slider closed">{{message.body}}</section>
 		</div>
 	</div>
 </div>
