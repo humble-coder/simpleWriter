@@ -116,7 +116,7 @@ angular.module('simpleWriter.controllers', [])
       authService.login(credentials).then(function(response) {
         if (response.name) {
           $scope.$emit(AUTH_EVENTS.loginSuccess, response);
-          $location.path('/users' + response.name);
+          $location.path('/users/' + response.name);
         }
         else
           $scope.$emit(AUTH_EVENTS.loginFailed, response);
@@ -612,7 +612,10 @@ angular.module('simpleWriter.controllers', [])
         $scope.checkForm();
         if ($scope.isValid) {
           socket.emit('sendMessage', { sender: $scope.currentUser.name, receiver: $scope.messageReceiver, subject: $scope.messageSubject, body: $scope.messageBody, sent: new Date().toUTCString() }, function() {
-            $scope.messageSent = true;
+            $scope.messageSent = true,
+            $scope.messageReceiver = "",
+            $scope.messageBody = "",
+            $scope.messageSubject = "";
           });
         }
       }

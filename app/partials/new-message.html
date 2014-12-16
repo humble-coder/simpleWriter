@@ -3,6 +3,14 @@
 	<h2 class="large-6 medium-8 small-12 columns">New Message</h2>
 </div>
 
+<div class="row">
+	<div class="small-12 columns">
+		<div data-alert class="alert-box success round" id="alert-five" ng-show="messageSent">
+			Your message has been sent. <a href="" class="close" ng-click="closeMessageSentAlert()">&times;</a>
+		</div>
+	</div>
+</div>
+
 <form name="new-document-form" ng-submit="sendMessage();">
 	<div class="row">
 		<div class="small-8 columns">
@@ -24,7 +32,7 @@
   		<input class="button" type="submit" value="Send">
   	</div>
   	<div class="small-2 columns">
-  		<a class="button" ng-href="#/users/{{currentUser.name}}">Cancel</a>
+  		<a class="button" href="#/messages">Back</a>
   	</div>
   </div>
   <div class="row">
@@ -33,13 +41,6 @@
 		  <textarea id="message-body" rows="15" ng-model="messageBody"></textarea>
 		  <div data-alert class="alert-box warning round" id="alert-four" ng-show="showNoBodyWarning">
   			Please add a body to your message.
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="small-12 columns">
-			<div data-alert class="alert-box success round" id="alert-five" ng-show="messageSent">
-				Your message has been sent. <a href="" class="close" ng-click="closeMessageSentAlert()">&times;</a>
 			</div>
 		</div>
 	</div>

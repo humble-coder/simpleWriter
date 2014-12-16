@@ -352,11 +352,13 @@ io.sockets.on('connection', function(socket) {
 				var response = [],
 				attributes = ["sender", "subject", "body", "sent", "id"],
 				messageObject = {};
+				var choppedMessage;
 				for (var i = 0, length = messages.length; i < length; i++) {
-					messages[i] = messages[i].split("-");
+					choppedMessage = messages[i].split("-");
 					for (var j = 0, attrLength = attributes.length; j < attrLength; j++)
-						messageObject[attributes[j]] = messages[i][j];
+						messageObject[attributes[j]] = choppedMessage[j];
 					response.push(messageObject);
+					messageObject = {};
 				}
 				fn(response);
 			}
@@ -368,12 +370,8 @@ io.sockets.on('connection', function(socket) {
 	socket.on('sendMessage', function(data, fn) {
 		client.incr("message-id", function(err, id) {
 			client.sadd(data.receiver + "-messages", data.sender + "-" + data.subject + "-" + data.body + "-" + data.sent + "-" + id, function(err2, reply1) {
-				if (reply1) {
-					client.hmset(data.receiver + ":message:" + data.sent, "sender", data.sender, "subject", data.subject, "body", data.body, "sent", data.sent, function(err3, reply2) {
-						if (reply2)
-							fn();
-					});
-				}
+				if (reply1)
+					fn();
 			});
 		});
 	});
