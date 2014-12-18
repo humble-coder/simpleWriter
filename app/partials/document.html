@@ -3,8 +3,11 @@
 	<div class="small-8 columns">
 		<h1 id="document-title">{{docTitle}}</h1>
 	</div>
-	<div class="small-4 columns" ng-show="userHasAccess">
+	<div class="small-2 columns" ng-show="userHasAccess">
 		<a ng-href="#/docs/{{docOwner}}/{{docId}}/edit" class="button">Edit</a>
+	</div>
+	<div class="small-2 columns" ng-show="userIsOwner">
+		<a href="" class="button">Delete</a>
 	</div>
 </div>
 <div class="row">

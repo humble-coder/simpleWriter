@@ -288,7 +288,8 @@ angular.module('simpleWriter.controllers', [])
       $scope.collaborators = docInfo.collaborators || [],
       $scope.hasCollaborators = $scope.collaborators.length > 0,
       $scope.docOwner = docInfo.owner,
-      $scope.userHasAccess = $scope.currentUser ? ((docInfo.owner === $scope.currentUser.name) || ($scope.collaborators.indexOf($scope.currentUser.name) > -1)) : false;
+      $scope.userIsOwner = $scope.currentUser ? (docInfo.owner === $scope.currentUser.name) : false,
+      $scope.userHasAccess = $scope.currentUser ? $scope.userIsOwner || ($scope.collaborators.indexOf($scope.currentUser.name) > -1) : false;
     }
 
     socket.emit('getDocument', { owner: $routeParams.username, docId: $routeParams.docId }, function(doc) {
