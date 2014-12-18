@@ -1,8 +1,10 @@
-<!-- <div id="new-doc-area" ng-show="currentUser">
-	<button type="button" id="new-document" ng-click="newDocument();" ng-hide="isMakingDocument">New Document</button>
-	<button type="button" id="save-button" ng-click="saveDocument();" ng-show="isMakingDocument">Save</button>
-	<input ng-model="docTitle" ng-show="isMakingDocument">
-	<textarea rows="20" cols="20" ng-model="docBody" ng-show="isMakingDocument"></textarea>
-</div> -->
-<!-- <a href="#/register" id="new-user-link" ng-hide="currentUser">Register</a>
-<a href="#/login" id="login-link" ng-hide="currentUser">Login</a> -->
+<div class="row">
+	<div class="small-12 columns">
+		<h1>Welcome to SimpleWriter!</h1>
+		<h2 class="subheader">Write and collaborate on documents with ease.</h2>
+		<br>
+		<div ng-hide="currentUser.name">
+			<a class="button" href="#/register">Register Now</a> <a class="button" href="#login">Login</a>
+		</div>
+	</div>
+</div>

@@ -524,8 +524,7 @@ angular.module('simpleWriter.controllers', [])
     }
 }]).controller('messagesCtrl', ['$scope', '$location', 'socket', function($scope, $location, socket) {
 
-  $scope.messages = [],
-  $scope.buttonMessage = "Show Message";
+  $scope.messages = [];
 
   if ($scope.currentUser.name) {
     socket.emit('getMessages', { user: $scope.currentUser.name }, function(response) {
@@ -538,6 +537,8 @@ angular.module('simpleWriter.controllers', [])
 
   $scope.showMessage = function(message) {
     angular.element('#message-' + message.id).toggleClass('closed');
+    var buttonMessage = angular.element('#show-message-' + message.id);
+    buttonMessage.text() === "Show Message" ? buttonMessage.text("Hide Message") : buttonMessage.text("Show Message");
     $scope.buttonMessage = $scope.buttonMessage === "Hide Message" ? "Show Message" : "Hide Message";
   }
 
