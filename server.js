@@ -247,7 +247,7 @@ io.sockets.on('connection', function(socket) {
 		}
 	});
 
-	socket.on('searchCollaborators', function(data) {
+	socket.on('searchForCollaborators', function(data) {
 		if (sessionRegex.test(data.sessionId)) {
 			var docChannel = data.owner + "-" + data.docId;
 			client.smembers("users:" + data.query + ":index", function(err, ids) {
@@ -346,25 +346,27 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('getMessages', function(data, fn) {
-		var user = data.user;
-		client.smembers(user + "-messages", function(err1, messages) {
-			if (messages.length) {
-				var response = [],
-				attributes = ["sender", "subject", "body", "sent", "id"],
-				messageObject = {};
-				var choppedMessage;
-				for (var i = 0, length = messages.length; i < length; i++) {
-					choppedMessage = messages[i].split("-");
-					for (var j = 0, attrLength = attributes.length; j < attrLength; j++)
-						messageObject[attributes[j]] = choppedMessage[j];
-					response.push(messageObject);
+		if (sessionRegex.test(data.sessionId)) {
+			var user = data.user;
+			client.smembers(user + "-messages", function(err1, messages) {
+				if (messages.length) {
+					var response = [],
+					attributes = ["sender", "subject", "body", "sent", "id"],
 					messageObject = {};
+					var choppedMessage;
+					for (var i = 0, length = messages.length; i < length; i++) {
+						choppedMessage = messages[i].split("-");
+						for (var j = 0, attrLength = attributes.length; j < attrLength; j++)
+							messageObject[attributes[j]] = choppedMessage[j];
+						response.push(messageObject);
+						messageObject = {};
+					}
+					fn(response);
 				}
-				fn(response);
-			}
-			else
-			  fn(null);  
-		});
+				else
+				  fn(null);  
+			});
+		}
 	});
 
 	socket.on('sendMessage', function(data, fn) {
@@ -375,5 +377,21 @@ io.sockets.on('connection', function(socket) {
 			});
 		});
 	});
+
+	socket.on('deleteDocument', function(data, fn) {
+		if (sessionRegex.test(data.sessionId)) {
+			client.srem(data.owner + "-documents", data.title, function(err, reply1) {
+				if (reply1) {
+					client.del(data.owner + '-' + data.docId, function(err, reply2) {
+						if (reply2) {
+							for (var index = 0, length = data.docId.length; index < length; index++)
+								client.srem("documents-" + data.docId.substring(0, index + 1).toLowerCase(), data.owner + "-" + data.docId);
+							fn();
+						}
+					})
+				}
+			})
+		}
+	})
 });
 

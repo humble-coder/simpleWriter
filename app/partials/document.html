@@ -7,7 +7,7 @@
 		<a ng-href="#/docs/{{docOwner}}/{{docId}}/edit" class="button">Edit</a>
 	</div>
 	<div class="small-2 columns" ng-show="userIsOwner">
-		<a href="" class="button">Delete</a>
+		<a href="" class="button" ng-click="deleteDocument();">Delete</a>
 	</div>
 </div>
 <div class="row">
@@ -44,10 +44,10 @@
 	<br>
 	<div class="row collapse">
 		<div class="large-3 medium-4 small-5 columns">
-			<input type="text" ng-model="query" placeholder="Search Collaborators">
+			<input type="text" ng-model="query" placeholder="Search for Collaborators">
 		</div>
 		<div class="large-2 medium-3 small-4 columns end">
-			<button class="button postfix" ng-click="searchUsers();">Search</button> 
+			<button class="button postfix" ng-click="searchForCollaborators();">Search</button> 
 		</div>
 	</div>
 	<div class="row">

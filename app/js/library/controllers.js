@@ -322,8 +322,15 @@ angular.module('simpleWriter.controllers', [])
       socket.emit('addCollaborator', { user: user, docId: $routeParams.docId, owner: $scope.docOwner, sessionId: Session.id });
     }
 
-    $scope.searchUsers = function() {
-      socket.emit('searchCollaborators', { query: $scope.query, user: $scope.currentUser.name, docId: $routeParams.docId, owner: $scope.docOwner, collaborators: $scope.collaborators, sessionId: Session.id });
+    $scope.searchForCollaborators = function() {
+      socket.emit('searchForCollaborators', { query: $scope.query, user: $scope.currentUser.name, docId: $routeParams.docId, owner: $scope.docOwner, collaborators: $scope.collaborators, sessionId: Session.id });
+    }
+
+    $scope.deleteDocument = function() {
+      if (confirm("Are you sure you want to delete the document entitled, '" + $scope.docTitle + "'?"))
+        socket.emit('deleteDocument', { docId: $routeParams.docId, owner: $scope.docOwner, title: $scope.docTitle, sessionId: Session.id }, function() {
+          $location.path('/users/' + $scope.docOwner);
+        });
     }
 
   }]).controller('editDocCtrl', ['$scope', '$routeParams', 'docInfo', 'socket', 'Session', '$location', function($scope, $routeParams, docInfo, socket, Session, $location) {
@@ -523,12 +530,12 @@ angular.module('simpleWriter.controllers', [])
       nextSet = $scope.sets[set.index];
       $scope.displaySet(nextSet);
     }
-}]).controller('messagesCtrl', ['$scope', '$location', 'socket', function($scope, $location, socket) {
+}]).controller('messagesCtrl', ['$scope', '$location', 'socket', 'Session', function($scope, $location, socket, Session) {
 
   $scope.messages = [];
 
   if ($scope.currentUser.name) {
-    socket.emit('getMessages', { user: $scope.currentUser.name }, function(response) {
+    socket.emit('getMessages', { user: $scope.currentUser.name, sessionId: Session.id }, function(response) {
       if (response)
         $scope.messages = response;
     });
