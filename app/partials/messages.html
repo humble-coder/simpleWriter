@@ -22,7 +22,9 @@
 			<section><b>Sent:</b> {{message.sent}}</section>
 			<br>
 			<a href="" class="button small radius" ng-attr-id="show-message-{{message.id}}" ng-click="showMessage(message)">Show Message</a>
-			<section ng-attr-id="message-{{message.id}}" class="slider closed">{{message.body}}</section>
+			<section ng-attr-id="message-{{message.id}}" class="slider closed">{{message.body}}<br><br>
+			<a href="#/messages/new" class="button small radius" ng-click="reply(message)">Reply</a>
+			</section>
 		</div>
 	</div>
 </div>

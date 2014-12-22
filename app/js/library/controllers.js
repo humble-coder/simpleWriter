@@ -530,7 +530,7 @@ angular.module('simpleWriter.controllers', [])
       nextSet = $scope.sets[set.index];
       $scope.displaySet(nextSet);
     }
-}]).controller('messagesCtrl', ['$scope', '$location', 'socket', 'Session', function($scope, $location, socket, Session) {
+}]).controller('messagesCtrl', ['$scope', '$location', 'socket', 'Session', 'replyInfo', function($scope, $location, socket, Session, replyInfo) {
 
   $scope.messages = [];
 
@@ -550,7 +550,12 @@ angular.module('simpleWriter.controllers', [])
     $scope.buttonMessage = $scope.buttonMessage === "Hide Message" ? "Show Message" : "Hide Message";
   }
 
-}]).controller('newMessageCtrl', ['$scope', '$location', 'socket', function($scope, $location, socket) {
+  $scope.reply = function(message) {
+    replyInfo.sender = message.sender,
+    replyInfo.subject = message.subject;
+  }
+
+}]).controller('newMessageCtrl', ['$scope', '$location', 'socket', 'replyInfo', function($scope, $location, socket, replyInfo) {
 
     if ($scope.currentUser.name) {
       $scope.$watch('messageReceiver', function(newValue, oldValue) {
@@ -631,6 +636,12 @@ angular.module('simpleWriter.controllers', [])
 
       $scope.closeMessageSentAlert = function() {
         $scope.messageSentAlert.hide();
+      }
+
+       if (replyInfo.sender) {
+        $scope.messageReceiver = replyInfo.sender,
+        $scope.messageSubject = replyInfo.subject;
+        $scope.checkReceiver($scope.messageReceiver);
       }
     }
     else
