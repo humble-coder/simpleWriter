@@ -536,8 +536,12 @@ angular.module('simpleWriter.controllers', [])
 
   if ($scope.currentUser.name) {
     socket.emit('getMessages', { user: $scope.currentUser.name, sessionId: Session.id }, function(response) {
-      if (response)
-        $scope.messages = response;
+      if (response) {
+        var sortedResponse = response.sort(function(a, b) {
+          return Date.parse(b.sent) - Date.parse(a.sent);
+        });
+        $scope.messages = sortedResponse;
+      }
     });
   }
   else
